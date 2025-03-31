@@ -1,0 +1,45 @@
+#server port
+server:
+  port: 9091
+
+#product
+product:
+  version: v1
+
+spring:
+  application:
+    name: Kohimana
+  #config database
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+  datasource:
+    url: jdbc:mysql://localhost:3306/kohimana
+    username: root
+    password: mysqL2004@
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  #config file
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 10MB
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+
+jwt:
+  timeout: 1000*60*60*24 #1 day
+  expiryDay: 14
+  expiryHour: 3
+  timeout-refresh-token: 1000*60*60*24*14 #2 weeks
+  secretKey: a3lsMzEwNzMwMDcyMDA0aGloaWFjY2Vzcwjustwantaworkablesecretkeyplease
+  refreshTokenKey: a3lsMzEwNzMwMDcyMDA0aGloaWFjY2Vzcwjustwantaworkablesecretkeypleasa
+  resetTokenKey: a3lsMzEwNzMwMDcyMDA0aGloaWFjY2Vzcwjustwantaworkablesecretkeypleasi
+
+
+
+
