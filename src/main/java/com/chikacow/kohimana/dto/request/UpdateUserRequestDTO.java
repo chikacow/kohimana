@@ -10,9 +10,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
 
 import static com.chikacow.kohimana.util.enums.Gender.*;
 
@@ -21,34 +19,21 @@ import static com.chikacow.kohimana.util.enums.Gender.*;
 @Builder
 @AllArgsConstructor
 @RequiredArgsConstructor
-public class UserRequestDTO implements Serializable {
-
-    @NotBlank(message = "k: firstname cannot be blank")
+public class UpdateUserRequestDTO {
     private String firstName;
 
-    @NotNull(message = "k: lastname cannot be null")
     private String lastName;
 
-    @Email(message = "k: email must be in the right format")
     private String email;
 
     //@Pattern(regexp = "^\\d{10}$", message = "k: phone invalid format")
     @PhoneNumber
     private String phone;
 
-    @NotNull(message = "dateOfBirth must be not null")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     @JsonFormat(pattern = "MM-dd-yyyy")
     private Date dateOfBirth;
 
-
     @GenderSubset(anyOf = {MALE, FEMALE, OTHER})
     private Gender gender;
-
-    @NotNull
-    private String username;
-
-    @NotNull
-    private String password;
-
 }

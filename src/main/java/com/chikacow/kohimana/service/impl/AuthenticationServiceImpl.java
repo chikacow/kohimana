@@ -2,8 +2,11 @@ package com.chikacow.kohimana.service.impl;
 
 import com.chikacow.kohimana.dto.request.ResetPasswordDTO;
 import com.chikacow.kohimana.dto.request.SignInRequest;
+import com.chikacow.kohimana.dto.request.UserRequestDTO;
 import com.chikacow.kohimana.dto.response.TokenResponse;
+import com.chikacow.kohimana.dto.response.UserResponseDTO;
 import com.chikacow.kohimana.exception.InvalidDataException;
+import com.chikacow.kohimana.exception.SaveToDBException;
 import com.chikacow.kohimana.model.Token;
 import com.chikacow.kohimana.model.User;
 import com.chikacow.kohimana.repository.UserRepository;
@@ -18,8 +21,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -44,9 +51,17 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         System.out.println(request.getUsername() + " " + request.getPassword());
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
 
-
         var user = userRepository.findByUsername(request.getUsername()).orElseThrow(() -> new UsernameNotFoundException("Wrong username or password"));
 
+        /// save user to SCH from /access-token aka /login -> self custom
+        UserDetails userDetaill = userService.getUserDetailsService().loadUserByUsername(user.getUsername());
+        SecurityContext newContext = SecurityContextHolder.createEmptyContext();
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetaill, null, userDetaill.getAuthorities());
+        //authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+        newContext.setAuthentication(authentication);
+        SecurityContextHolder.setContext(newContext);
+
+        ///
         String accessToken = jwtService.generateToken(user);
 
         String refreshToken = jwtService.generateRefreshToken(user);
@@ -174,6 +189,42 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         return "Changed";
     }
+
+    @Override
+    public UserResponseDTO registerUser(UserRequestDTO userRequestDTO) {
+        if (userRepository.existsByUsername(userRequestDTO.getUsername())) {
+            throw new InvalidDataException("Username already exists");
+        }
+        User newUser = User.builder()
+                .firstName(userRequestDTO.getFirstName())
+                .lastName(userRequestDTO.getLastName())
+                .email(userRequestDTO.getEmail())
+                .gender(userRequestDTO.getGender())
+                .dateOfBirth(userRequestDTO.getDateOfBirth())
+                .phoneNumber(userRequestDTO.getPhone())
+                .username(userRequestDTO.getUsername())
+                .password(passwordEncoder.encode(userRequestDTO.getPassword()))
+                .isActive(Boolean.TRUE)
+                .build();
+
+        Optional<User> retrivedUser = Optional.of(userRepository.save(newUser));
+        if (retrivedUser.isEmpty()) {
+            throw new SaveToDBException("Error saving newly created user");
+        }
+
+        UserResponseDTO userResponseDTO = UserResponseDTO.builder()
+                .firstName(retrivedUser.get().getFirstName())
+                .lastName(retrivedUser.get().getLastName())
+                .email(retrivedUser.get().getEmail())
+                .gender(retrivedUser.get().getGender())
+                .username(retrivedUser.get().getUsername())
+                .createdAt(retrivedUser.get().getCreatedAt())
+                .dateOfBirth(userRequestDTO.getDateOfBirth())
+                .phoneNumber(userRequestDTO.getPhone())
+                .build();
+        return userResponseDTO;
+    }
+
 
     private User isValidUserByToken(String secretKey) {
         // validate token

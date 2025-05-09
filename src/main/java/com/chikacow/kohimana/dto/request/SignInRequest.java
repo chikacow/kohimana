@@ -5,10 +5,12 @@ import jakarta.annotation.Nonnull;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
 
 @Getter
+@Setter
 public class SignInRequest implements Serializable {
 
     @NotBlank(message = "missing username")

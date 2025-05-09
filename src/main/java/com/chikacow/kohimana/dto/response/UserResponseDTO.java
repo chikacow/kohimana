@@ -1,9 +1,10 @@
-package com.chikacow.kohimana.dto.request;
+package com.chikacow.kohimana.dto.response;
 
 import com.chikacow.kohimana.util.enums.Gender;
 import com.chikacow.kohimana.validator.GenderSubset;
 import com.chikacow.kohimana.validator.PhoneNumber;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -21,34 +22,24 @@ import static com.chikacow.kohimana.util.enums.Gender.*;
 @Builder
 @AllArgsConstructor
 @RequiredArgsConstructor
-public class UserRequestDTO implements Serializable {
-
-    @NotBlank(message = "k: firstname cannot be blank")
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class UserResponseDTO implements Serializable {
     private String firstName;
 
-    @NotNull(message = "k: lastname cannot be null")
     private String lastName;
 
-    @Email(message = "k: email must be in the right format")
     private String email;
 
-    //@Pattern(regexp = "^\\d{10}$", message = "k: phone invalid format")
-    @PhoneNumber
-    private String phone;
+    private String phoneNumber;
 
-    @NotNull(message = "dateOfBirth must be not null")
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-    @JsonFormat(pattern = "MM-dd-yyyy")
     private Date dateOfBirth;
 
-
-    @GenderSubset(anyOf = {MALE, FEMALE, OTHER})
     private Gender gender;
 
-    @NotNull
     private String username;
 
-    @NotNull
     private String password;
+
+    private Date createdAt;
 
 }

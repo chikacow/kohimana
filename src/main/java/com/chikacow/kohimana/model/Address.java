@@ -34,10 +34,5 @@ public class Address extends AbstractEntity<Long> {
     @Column(name = "country")
     private String country;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id")
-    private User user;
 
-    @Column(name = "address_type")
-    private Integer addressType;
 }

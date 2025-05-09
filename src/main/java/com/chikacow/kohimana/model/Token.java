@@ -8,9 +8,9 @@ import java.util.Set;
 
 @Entity
 @Table(name = "tbl_token")
-@Builder
 @Getter
 @Setter
+@Builder
 @RequiredArgsConstructor
 @AllArgsConstructor
 public class Token extends AbstractEntity<Integer> {

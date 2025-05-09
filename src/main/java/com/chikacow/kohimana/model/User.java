@@ -2,9 +2,7 @@ package com.chikacow.kohimana.model;
 
 import com.chikacow.kohimana.util.enums.Gender;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import java.io.Serializable;
@@ -14,7 +12,9 @@ import java.util.*;
 @Table(name = "tbl_user")
 @Getter
 @Setter
+@Builder
 @RequiredArgsConstructor
+@AllArgsConstructor
 public class User extends AbstractEntity<Long> implements Serializable, UserDetails {
 
     @Column(name = "first_name")
@@ -31,9 +31,6 @@ public class User extends AbstractEntity<Long> implements Serializable, UserDeta
     @Column(name = "gender")
     private Gender gender;
 
-    @Column(name = "phone")
-    private String phone;
-
     @Column(name = "email")
     private String email;
 
@@ -45,6 +42,9 @@ public class User extends AbstractEntity<Long> implements Serializable, UserDeta
 
     @Column(name = "phone_number")
     private String phoneNumber;
+
+    @Column(name = "is_active")
+    private Boolean isActive;
 
 
     @OneToMany(mappedBy = "user")

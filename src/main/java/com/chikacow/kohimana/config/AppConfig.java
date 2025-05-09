@@ -4,8 +4,10 @@ import com.chikacow.kohimana.controller.AuthenticationController;
 import com.chikacow.kohimana.service.UserService;
 import jakarta.annotation.Nonnull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -21,6 +23,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -31,7 +36,7 @@ public class AppConfig {
     private final UserService userService;
     private final PreFilter preFilter;
 
-    private String[] WHITE_LIST = {"/auth/**"};
+    private String[] WHITE_LIST = {"/api/v1/auth/**", "/api/v1/admin/**"};
 
 
     @Bean
@@ -60,6 +65,7 @@ public class AppConfig {
     @Bean
     public SecurityFilterChain configure(@Nonnull HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable).
+
                 authorizeHttpRequests(authorizeRequests -> authorizeRequests.requestMatchers(WHITE_LIST).permitAll().anyRequest().authenticated())
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
@@ -94,6 +100,9 @@ public class AppConfig {
         return config.getAuthenticationManager();
 
     }
+
+
+
 
 
 

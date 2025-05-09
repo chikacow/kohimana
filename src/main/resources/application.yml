@@ -24,6 +24,9 @@ spring:
     multipart:
       max-file-size: 50MB
       max-request-size: 10MB
+  #profiles
+  profiles:
+    active: @spring.profiles.active@
 
 springdoc:
   api-docs:
@@ -39,7 +42,5 @@ jwt:
   secretKey: a3lsMzEwNzMwMDcyMDA0aGloaWFjY2Vzcwjustwantaworkablesecretkeyplease
   refreshTokenKey: a3lsMzEwNzMwMDcyMDA0aGloaWFjY2Vzcwjustwantaworkablesecretkeypleasa
   resetTokenKey: a3lsMzEwNzMwMDcyMDA0aGloaWFjY2Vzcwjustwantaworkablesecretkeypleasi
-
-
 
 

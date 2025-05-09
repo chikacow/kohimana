@@ -33,14 +33,23 @@ public class PreFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
+        System.out.println("start prefilter----------------");
         final String authorizationContent = request.getHeader("Authorization");
-
+        System.out.println(request.getRequestURL().toString());
         if (StringUtils.isBlank(authorizationContent) || !authorizationContent.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response);
+            System.out.println("jump here");
 
+//            if (request.getRequestURL().toString().contains("/api/v1/auth/access-token")) {
+//                SecurityContextHolder.getContext().setAuthentication();
+//                filterChain.doFilter(request, response);
+//            } else {
+//                filterChain.doFilter(request, response);
+//            }
+
+            filterChain.doFilter(request, response);
             return;
         }
-
+        System.out.println("continue-------------------");
         final String token = authorizationContent.substring("Bearer ".length());
         final String username = jwtService.extractUsername(token, TokenType.ACCESS_TOKEN);
 
@@ -59,7 +68,7 @@ public class PreFilter extends OncePerRequestFilter {
             }
         }
 
-
+        System.out.println("finish prefilter----------------");
         filterChain.doFilter(request, response);
     }
 
