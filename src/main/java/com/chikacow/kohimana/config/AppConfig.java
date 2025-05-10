@@ -36,7 +36,7 @@ public class AppConfig {
     private final UserService userService;
     private final PreFilter preFilter;
 
-    private String[] WHITE_LIST = {"/api/v1/auth/**", "/api/v1/admin/**"};
+    private String[] WHITE_LIST = {"/api/v1/auth/**", "/api/v1/admin/**" , "/api/v1/file/**"};
 
 
     @Bean

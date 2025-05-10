@@ -19,11 +19,16 @@ spring:
     username: root
     password: mysqL2004@
     driver-class-name: com.mysql.cj.jdbc.Driver
+
+#  sql:
+#    init:
+#      mode: always
   #config file
   servlet:
     multipart:
       max-file-size: 50MB
       max-request-size: 10MB
+      enabled: true
   #profiles
   profiles:
     active: @spring.profiles.active@

@@ -3,21 +3,23 @@ package com.chikacow.kohimana.model;
 
 import com.chikacow.kohimana.util.enums.CategoryType;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
+import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "tbl_category")
+@Slf4j
+@Builder
 @RequiredArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
 public class Category extends AbstractEntity<Long> {
+
+    @Column(name = "category_id", unique = true, nullable = false)
+    private String code;
 
     @Column(name = "name")
     private String name;
@@ -27,6 +29,6 @@ public class Category extends AbstractEntity<Long> {
     private CategoryType type;
 
     @OneToMany(mappedBy = "category")
-    private List<Product> productList = new ArrayList<>();
+    private List<Product> productList;
 
 }

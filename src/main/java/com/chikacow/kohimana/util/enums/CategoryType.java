@@ -1,7 +1,15 @@
 package com.chikacow.kohimana.util.enums;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
 public enum CategoryType {
-    FOOD,
-    DRINK,
-    AT_HOME_COFFEE
+    FOOD("food"),
+    DRINK("drink"),
+    OTHER("other");
+
+    private final String value;
+
 }

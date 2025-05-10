@@ -2,13 +2,20 @@ package com.chikacow.kohimana.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 
 @Entity
 @Table(name = "tbl_product")
+@Slf4j
+@Builder
+@AllArgsConstructor
 @RequiredArgsConstructor
 @Getter
 @Setter
 public class Product extends AbstractEntity<Long> {
+
+    @Column(name = "code", unique = true, nullable = false)
+    private String code;
 
     @Column(name = "name")
     private String name;
@@ -19,10 +26,12 @@ public class Product extends AbstractEntity<Long> {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "image_url")
+    @Column(name = "image_url", columnDefinition = "TEXT")
+    //@OneToOne(cascade = CascadeType.REMOVE)
     private String imageUrl;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+
+    @ManyToOne
     @JoinColumn(name = "cate_id", referencedColumnName = "id")
     private Category category;
 

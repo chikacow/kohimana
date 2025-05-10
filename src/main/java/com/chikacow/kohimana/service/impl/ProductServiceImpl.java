@@ -1,4 +1,135 @@
 package com.chikacow.kohimana.service.impl;
 
-public class ProductServiceImpl {
+import com.chikacow.kohimana.dto.request.ProductRequestDTO;
+import com.chikacow.kohimana.dto.response.ProductResponseDTO;
+import com.chikacow.kohimana.exception.ResourceNotFoundException;
+import com.chikacow.kohimana.model.Category;
+import com.chikacow.kohimana.model.Product;
+import com.chikacow.kohimana.repository.ProductRepository;
+import com.chikacow.kohimana.service.CategoryService;
+import com.chikacow.kohimana.service.FileService;
+import com.chikacow.kohimana.service.ProductService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+@Service
+@Slf4j
+@RequiredArgsConstructor
+public class ProductServiceImpl implements ProductService {
+    private final ProductRepository productRepository;
+    private final CategoryService categoryService;
+
+    private final FileService fileService;
+
+    @Override
+    public ProductResponseDTO createProduct(ProductRequestDTO productRequestDTO) {
+
+        Category category = categoryService.getCategoryById(104L);
+        if (productRequestDTO.getCateCode() != null) {
+            category = categoryService.getCategoryByCode(productRequestDTO.getCateCode());
+        }
+
+
+        String cloudUrl = resolveImageUrl(productRequestDTO.getLocalImageUrl());
+
+
+        Product newProduct = Product.builder()
+                .code(productRequestDTO.getCode())
+                .name(productRequestDTO.getName())
+                .description(productRequestDTO.getDescription())
+                .price(productRequestDTO.getPrice())
+                .imageUrl(cloudUrl)
+                .category(category)
+                .build();
+
+        Product savedProduct = productRepository.save(newProduct);
+
+        ProductResponseDTO res = ProductResponseDTO.builder()
+                .code(savedProduct.getCode())
+                .name(savedProduct.getName())
+                .description(savedProduct.getDescription())
+                .price(savedProduct.getPrice())
+                .imageUrl(savedProduct.getImageUrl())
+                .categoryID(savedProduct.getCategory() != null ? savedProduct.getCategory().getCode() : "none")
+
+                .build();
+
+        return res;
+    }
+
+    @Override
+    public ProductResponseDTO getProductInfo(Long id) {
+        Product retrived = productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("product not found"));
+
+        ProductResponseDTO res = ProductResponseDTO.builder()
+                .code(retrived.getCode())
+                .name(retrived.getName())
+                .description(retrived.getDescription())
+                .price(retrived.getPrice())
+                .imageUrl(retrived.getImageUrl())
+                .categoryID(retrived.getCategory() != null ? retrived.getCategory().getCode() : "none")
+                .build();
+        return res;
+    }
+
+    @Override
+    public ProductResponseDTO updateProductInfo(Long id, ProductRequestDTO productRequestDTO) {
+        Product product = productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("product not found"));
+
+        if (productRequestDTO.getCode() != null) {
+            product.setCode(productRequestDTO.getCode());
+        }
+        if (productRequestDTO.getName() != null) {
+            product.setName(productRequestDTO.getName());
+        }
+        if (productRequestDTO.getDescription() != null) {
+            product.setDescription(productRequestDTO.getDescription());
+        }
+        if (productRequestDTO.getPrice() != 0) {
+            product.setPrice(productRequestDTO.getPrice());
+        }
+        if (productRequestDTO.getLocalImageUrl() != null && !resolveImageUrl(productRequestDTO.getLocalImageUrl()).equals("not found") ) {
+            product.setImageUrl(resolveImageUrl(productRequestDTO.getLocalImageUrl()));
+        }
+        if (productRequestDTO.getCateCode() != null) {
+            product.setCategory(categoryService.getCategoryByCode(productRequestDTO.getCateCode()));
+        }
+
+        Product savedProduct = productRepository.save(product);
+
+        ProductResponseDTO res = ProductResponseDTO.builder()
+                .code(savedProduct.getCode())
+                .name(savedProduct.getName())
+                .description(savedProduct.getDescription())
+                .price(savedProduct.getPrice())
+                .imageUrl(savedProduct.getImageUrl())
+                .categoryID(savedProduct.getCategory() != null ? savedProduct.getCategory().getCode() : "none")
+                .build();
+        return res;
+    }
+
+    @Override
+    public Long deleteProduct(Long id) {
+        Product product = productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("product not found"));
+        //fileService.deleteFileByCloud(product.getImageUrl());
+        productRepository.delete(product);
+        return product.getId();
+    }
+
+
+    private String resolveImageUrl(String localUrl) {
+        String rt = "not found";
+        try {
+            if (localUrl != null) {
+                return fileService.getCloudUrl(localUrl);
+            } else {
+                return "no image";
+            }
+        } catch (Exception e) {
+            log.info("Failed to resolve image url");
+        }
+
+        return rt;
+    }
 }
