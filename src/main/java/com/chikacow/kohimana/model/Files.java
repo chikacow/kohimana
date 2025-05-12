@@ -1,6 +1,5 @@
 package com.chikacow.kohimana.model;
 
-import com.chikacow.kohimana.util.enums.FileType;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;

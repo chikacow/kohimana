@@ -9,29 +9,27 @@ import java.math.BigDecimal;
 
 @Entity
 @Table(name = "tbl_order_item")
-@Slf4j
-@Builder
-@AllArgsConstructor
-@RequiredArgsConstructor
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class OrderItem extends AbstractEntity<Long> {
 
-    @ManyToOne
-    @JoinColumn(name = "order_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id")
     private Order order;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
     @Column(name = "quantity", nullable = false)
-    private int quantity;
+    private Integer quantity;
 
-    @Column(name = "price_per_unit", nullable = false)
-    private BigDecimal pricePerUnit;
+    @Column(name = "price", nullable = false)
+    private BigDecimal price; // Giá tại thời điểm order
 
-    @Column(name = "special_request", nullable = true)
-    private String specialRequest;
-
+    @Column(name = "note")
+    private String note; // Ghi chú cho món
 }

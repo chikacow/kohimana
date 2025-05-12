@@ -19,6 +19,14 @@ public class AppScheduler {
         log.info("Cleaning file database... found:" + Long.toString(fileService.cleanAllFiles()));
     }
 
+    /**
+     * clean order that is pending for more than 30 min from the created_at
+     */
+    //@Scheduled(fixedRate = 1000 * 60 * 60)
+    public void cleanOrderDatabase() {
+        log.info("Cleaning file database... found:" + Long.toString(fileService.cleanAllFiles()));
+    }
+
 //    @Scheduled(fixedRate = 5000, )
 //    public void runEveryFiveSeconds() {
 //        System.out.println("Running task at " + LocalDateTime.now());

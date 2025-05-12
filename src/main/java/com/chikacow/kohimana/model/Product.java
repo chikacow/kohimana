@@ -5,6 +5,8 @@ import jakarta.persistence.Table;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "tbl_product")
 @Slf4j
@@ -22,7 +24,7 @@ public class Product extends AbstractEntity<Long> {
     private String name;
 
     @Column(name = "price")
-    private double price;
+    private BigDecimal price;
 
     @Column(name = "description")
     private String description;

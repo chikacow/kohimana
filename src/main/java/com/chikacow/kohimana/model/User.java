@@ -4,6 +4,7 @@ import com.chikacow.kohimana.util.enums.Gender;
 import jakarta.persistence.*;
 import jakarta.persistence.Table;
 import lombok.*;
+import org.aspectj.weaver.ast.Or;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import java.io.Serializable;
@@ -47,6 +48,8 @@ public class User extends AbstractEntity<Long> implements Serializable, UserDeta
     @Column(name = "is_active")
     private Boolean isActive;
 
+    @OneToMany(mappedBy = "user")
+    private List<Order> orders;
 
     @OneToMany(mappedBy = "user")
     private Set<GroupHasUser> users = new HashSet<>();

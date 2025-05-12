@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -89,7 +90,7 @@ public class ProductServiceImpl implements ProductService {
         if (productRequestDTO.getDescription() != null) {
             product.setDescription(productRequestDTO.getDescription());
         }
-        if (productRequestDTO.getPrice() != 0) {
+        if (productRequestDTO.getPrice().longValue() != 0) {
             product.setPrice(productRequestDTO.getPrice());
         }
         if (productRequestDTO.getLocalImageUrl() != null && !resolveImageUrl(productRequestDTO.getLocalImageUrl()).equals("not found") ) {
@@ -118,6 +119,11 @@ public class ProductServiceImpl implements ProductService {
         //fileService.deleteFileByCloud(product.getImageUrl());
         productRepository.delete(product);
         return product.getId();
+    }
+
+    @Override
+    public Product getProductById(Long id) {
+        return productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("product not found"));
     }
 
     @Override

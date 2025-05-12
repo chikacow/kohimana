@@ -2,6 +2,8 @@ package com.chikacow.kohimana.dto.response;
 
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Getter
 @Setter
 @Builder
@@ -11,7 +13,7 @@ public class ProductResponseDTO {
 
     private String name;
 
-    private double price;
+    private BigDecimal price;
 
     private String description;
 

@@ -5,18 +5,15 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Entity
-@jakarta.persistence.Table(name = "tbl_table")
+@Table(name = "tbl_seat")
 @Slf4j
 @Builder
 @AllArgsConstructor
 @RequiredArgsConstructor
 @Getter
 @Setter
-public class Table extends AbstractEntity<Long> {
+public class Seat extends AbstractEntity<Long> {
 
     @Column(name = "table_no", nullable = false, unique = true)
     private String tableNo;

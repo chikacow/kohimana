@@ -7,6 +7,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Getter
 @Setter
 @Builder
@@ -17,7 +19,7 @@ public class ProductRequestDTO {
 
     private String name;
 
-    private double price;
+    private BigDecimal price;
 
     private String description;
 
