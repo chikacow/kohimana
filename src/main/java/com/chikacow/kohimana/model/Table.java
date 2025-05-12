@@ -1,0 +1,33 @@
+package com.chikacow.kohimana.model;
+
+import com.chikacow.kohimana.util.enums.TableStatus;
+import jakarta.persistence.*;
+import lombok.*;
+import lombok.extern.slf4j.Slf4j;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Entity
+@jakarta.persistence.Table(name = "tbl_table")
+@Slf4j
+@Builder
+@AllArgsConstructor
+@RequiredArgsConstructor
+@Getter
+@Setter
+public class Table extends AbstractEntity<Long> {
+
+    @Column(name = "table_no", nullable = false, unique = true)
+    private String tableNo;
+
+    @Column(name = "description", nullable = false)
+    private String description;
+
+    @Column(name = "status", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private TableStatus status = TableStatus.AVAILABLE;
+
+
+
+}

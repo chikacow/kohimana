@@ -21,9 +21,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
             nativeQuery = true)
     public Optional<User> findByEmail(@Param("email") String email);
 
-    @Query(value = "SELECT * FROM tbl_user WHERE username = :username AND is_active = true",
-            nativeQuery = true)
-    public boolean existsByUsername(@Param("username") String username);
+//    @Query(value = "SELECT * FROM tbl_user WHERE username = :username AND is_active = true",
+//            nativeQuery = true)
+    public boolean existsByUsername(String username);
 
     @Query(value = "SELECT * FROM tbl_user WHERE username = :username", nativeQuery = true)
     public Optional<User> getByUsername(@Param("username") String username);

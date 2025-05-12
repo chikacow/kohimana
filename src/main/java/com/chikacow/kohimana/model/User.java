@@ -2,6 +2,7 @@ package com.chikacow.kohimana.model;
 
 import com.chikacow.kohimana.util.enums.Gender;
 import jakarta.persistence.*;
+import jakarta.persistence.Table;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

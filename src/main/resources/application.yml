@@ -19,8 +19,10 @@ spring:
     username: root
     password: mysqL2004@
     driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
 
-#  sql:
+  #  sql:
 #    init:
 #      mode: always
   #config file
@@ -49,3 +51,5 @@ jwt:
   resetTokenKey: a3lsMzEwNzMwMDcyMDA0aGloaWFjY2Vzcwjustwantaworkablesecretkeypleasi
 
 
+scheduler:
+  clean-db-every: 1000* 60 #1 min

@@ -1,6 +1,7 @@
 package com.chikacow.kohimana.model;
 
 import jakarta.persistence.*;
+import jakarta.persistence.Table;
 import lombok.*;
 
 import java.util.HashSet;

@@ -14,6 +14,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/admin/product")
 @RequiredArgsConstructor
@@ -30,6 +32,13 @@ public class AdminProductController {
 
         return ResponseEntity.ok(res);
     }
+
+//    @PostMapping("/create")
+//    public ResponseEntity<ProductResponseDTO> createNewProduct(@RequestBody List<ProductRequestDTO> productRequestDTO) {
+//        ProductResponseDTO res = productService.createTonsProduct(productRequestDTO);
+//
+//        return ResponseEntity.ok(res);
+//    }
 
     @GetMapping("/{productId}")
     public ResponseEntity<ProductResponseDTO> getProductInfo(@PathVariable Long productId) {

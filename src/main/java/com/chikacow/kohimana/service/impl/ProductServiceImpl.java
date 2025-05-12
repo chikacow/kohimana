@@ -9,9 +9,12 @@ import com.chikacow.kohimana.repository.ProductRepository;
 import com.chikacow.kohimana.service.CategoryService;
 import com.chikacow.kohimana.service.FileService;
 import com.chikacow.kohimana.service.ProductService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @Slf4j
@@ -25,7 +28,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductResponseDTO createProduct(ProductRequestDTO productRequestDTO) {
 
-        Category category = categoryService.getCategoryById(104L);
+        Category category = new Category();
         if (productRequestDTO.getCateCode() != null) {
             category = categoryService.getCategoryByCode(productRequestDTO.getCateCode());
         }
@@ -115,6 +118,37 @@ public class ProductServiceImpl implements ProductService {
         //fileService.deleteFileByCloud(product.getImageUrl());
         productRepository.delete(product);
         return product.getId();
+    }
+
+    @Override
+    @Transactional
+    public ProductResponseDTO createTonsProduct(List<ProductRequestDTO> productRequestDTOlist) {
+
+        for(ProductRequestDTO productRequestDTO : productRequestDTOlist) {
+            Category category = new Category();
+            if (productRequestDTO.getCateCode() != null) {
+                category = categoryService.getCategoryByCode(productRequestDTO.getCateCode());
+            }
+
+
+            String cloudUrl = resolveImageUrl(productRequestDTO.getLocalImageUrl());
+
+
+            Product newProduct = Product.builder()
+                    .code(productRequestDTO.getCode())
+                    .name(productRequestDTO.getName())
+                    .description(productRequestDTO.getDescription())
+                    .price(productRequestDTO.getPrice())
+                    .imageUrl(cloudUrl)
+                    .category(category)
+                    .build();
+
+            Product savedProduct = productRepository.save(newProduct);
+
+
+        }
+
+        return null;
     }
 
 

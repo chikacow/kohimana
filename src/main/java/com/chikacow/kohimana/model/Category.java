@@ -3,6 +3,7 @@ package com.chikacow.kohimana.model;
 
 import com.chikacow.kohimana.util.enums.CategoryType;
 import jakarta.persistence.*;
+import jakarta.persistence.Table;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 
@@ -28,7 +29,7 @@ public class Category extends AbstractEntity<Long> {
     @Enumerated(EnumType.STRING)
     private CategoryType type;
 
-    @OneToMany(mappedBy = "category")
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Product> productList;
 
 }

@@ -40,4 +40,10 @@ public class FileService {
     public void deleteFileByCloud(String cloutUrl) {
         fileRepository.deleteByCloudUrl(cloutUrl);
     }
+
+    public Long cleanAllFiles() {
+        Long numFiles = fileRepository.count();
+        fileRepository.deleteAll();
+        return numFiles;
+    }
 }
