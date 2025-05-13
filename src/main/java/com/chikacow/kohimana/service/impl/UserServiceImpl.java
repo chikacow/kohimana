@@ -39,6 +39,10 @@ public class UserServiceImpl implements UserService {
     private final SearchRepository searchRepository;
 
 
+    /**
+     *Return UserDetails object used for securities, should be found in PreFilter and Jwt handlings
+     * @return
+     */
     @Override
     public UserDetailsService getUserDetailsService() {
         return new UserDetailsService() {
@@ -60,34 +64,45 @@ public class UserServiceImpl implements UserService {
         };
     }
 
+    /**
+     * Find User object by their email, only one record returned as the requirements
+     * @return User object
+     */
     @Override
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("email not found"));
     }
 
+    /**
+     * Find User object by their username, only one record returned as the requirements
+     * @param username
+     * @return
+     */
     @Override
-    public User getByUsername(String userName) {
-        return userRepository.findByUsername(userName).orElseThrow(() -> new UsernameNotFoundException("username not found"));
+    public User getByUsername(String username) {
+        return userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("username not found"));
     }
 
-
-
-    @Override
-    public UserResponseDTO createUser(UserRequestDTO userRequestDTO) {
-
-
-        //on next version
-
-        return null;
-    }
-
+    /**
+     * pending to the next version...
+     * potentially be a special utility for user
+     * @param user
+     * @return
+     */
     @Override
     public User updateUser(User user) {
         return null;
     }
 
 
-
+    /**
+     * Return pages presenting list of all existing user in the system
+     * allowing specification of customizing page size, sort by asc or desc and select page number to view
+     * @param pageNo
+     * @param pageSize
+     * @param sortBy
+     * @return
+     */
     @Override
     public PageResponse<?> getAllUsers(int pageNo, int pageSize, String sortBy) {
         int realPageNo = 0;
@@ -130,10 +145,15 @@ public class UserServiceImpl implements UserService {
                 .pageSize(pageSize)
                 .totalPage(page.getTotalPages())
                 .build();
-
-
     }
 
+    /**
+     * Same to the one above but have allowance to sort by multiple selections
+     * @param pageNo
+     * @param pageSize
+     * @param sorts
+     * @return
+     */
     @Override
     public PageResponse<?> getAllUsersWithSortByMultipleColumns(int pageNo, int pageSize, String... sorts) {
         int realPageNo = 0;
@@ -182,12 +202,26 @@ public class UserServiceImpl implements UserService {
 
     }
 
+    /**
+     *
+     * @param pageNo
+     * @param pageSize
+     * @param sortBy
+     * @param search
+     * @return
+     */
     @Override
     public PageResponse<?> getAllUsersWithSortByMultipleColumnsAndSearch(int pageNo, int pageSize, String sortBy, String search) {
         return searchRepository.getAllUsersWithSortByMultipleColumnsAndSearch(pageNo, pageSize, sortBy, search);
     }
 
 
+    /**
+     * A function for user to view their own info
+     * This sensitively limit the amount of information from the system that the customer can view
+     * @param username
+     * @return
+     */
     @Override
     public UserResponseDTO getUserInfo(String username) {
         if (!checkAuthorization(username)) {
@@ -210,6 +244,12 @@ public class UserServiceImpl implements UserService {
         return res;
     }
 
+    /**
+     * for user to update their profiles but only general data
+     * @param username
+     * @param requestDTO
+     * @return
+     */
     @Override
     public UserResponseDTO updateUserInfo(String username, UpdateUserRequestDTO requestDTO) {
 
@@ -253,6 +293,12 @@ public class UserServiceImpl implements UserService {
         return res;
     }
 
+    /**
+     * De-activate and Activate user account
+     * Basically banning user account but not deleting them
+     * @param username
+     * @return
+     */
     @Override
     public AccountStatus changeAccountStatus(String username) {
         User user = userRepository.getByUsername(username).orElseThrow(() -> new UsernameNotFoundException("username not found"));
@@ -265,6 +311,11 @@ public class UserServiceImpl implements UserService {
         return newUser.getIsActive() ? AccountStatus.ACTIVE : AccountStatus.INACTIVE;
     }
 
+    /**
+     * To assure user A can't access user B's data
+     * @param username
+     * @return
+     */
     private boolean checkAuthorization(String username) {
         if (SecurityContextHolder.getContext().getAuthentication().getName().equals(username)) {
             return true;
@@ -272,4 +323,6 @@ public class UserServiceImpl implements UserService {
         return false;
 
     }
+
+
 }

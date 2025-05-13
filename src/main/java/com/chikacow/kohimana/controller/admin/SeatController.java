@@ -1,15 +1,13 @@
 package com.chikacow.kohimana.controller.admin;
 
 import com.chikacow.kohimana.model.Seat;
-import com.chikacow.kohimana.service.SearService;
+import com.chikacow.kohimana.service.SeatService;
 import com.chikacow.kohimana.util.enums.TableStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -17,7 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SeatController {
 
-    private final SearService seatService;
+    private final SeatService seatService;
 
     /**
      * Require paging

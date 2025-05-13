@@ -95,11 +95,21 @@ public class PaymentServiceImpl implements PaymentService {
         return res;
     }
 
+    /**
+     * next version
+     * @param transactionId
+     * @return
+     */
     @Override
     public PaymentResponseDTO checkPaymentStatus(String transactionId) {
         return null;
     }
 
+    /**
+     * next version
+     * @param transactionId
+     * @return
+     */
     @Override
     public PaymentResponseDTO refundPayment(String transactionId) {
         return null;

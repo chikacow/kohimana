@@ -21,19 +21,19 @@ import java.math.BigDecimal;
 @RequiredArgsConstructor
 public class PaymentRequestDTO {
 
-    @NotNull
+    @NotNull(message = "amount must not be empty")
     private BigDecimal amount = BigDecimal.ZERO;
 
-    @NotNull
+    @NotNull(message = "order id must not be empty")
     private Long orderID;
 
-    //@NotBlank cnay chi dc phep dung cho String, vs enum se bi loi
-    @NotNull
+    //@NotBlank allowed only for String
+    @NotNull(message = "please include your payment method")
     private PaymentMethod paymentMethod;
 
     private String description;
 
-    @NotNull
+    @NotNull(message = "missing currency of money")
     private MoneyCurrency currency;
 
 }

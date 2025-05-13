@@ -12,9 +12,9 @@ import java.util.List;
 @AllArgsConstructor
 @RequiredArgsConstructor
 public class OrderRequestDTO {
-    @NotNull(message = "Seat ID is required")
+    @NotNull(message = "seat id")
     private Long seatID;
 
-    @NotEmpty(message = "Order items cannot be empty")
+    @NotEmpty(message = "must include some order items")
     private List<OrderItemRequestDTO> items;
 }

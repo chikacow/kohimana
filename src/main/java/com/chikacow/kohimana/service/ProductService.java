@@ -15,7 +15,7 @@ public interface ProductService {
 
     public Long deleteProduct(Long id);
 
-
     public Product getProductById(Long id);
-    ProductResponseDTO createTonsProduct(List<ProductRequestDTO> productRequestDTOlist);
+
+    public ProductResponseDTO createTonsProduct(List<ProductRequestDTO> productRequestDTOlist);
 }

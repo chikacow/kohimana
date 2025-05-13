@@ -19,6 +19,6 @@ public class SignInRequest implements Serializable {
     @NotBlank(message = "missing password")
     private String password;
 
-    @NotNull
+    @NotNull(message = "platform must not be null")
     private Platform platform;
 }

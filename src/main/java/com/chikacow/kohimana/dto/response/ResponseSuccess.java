@@ -6,13 +6,13 @@ import org.springframework.http.ResponseEntity;
 
 public class ResponseSuccess extends ResponseEntity<ResponseSuccess.Payload> {
 
-    //put, patch, delete, just need the message and status
+
     public ResponseSuccess(HttpStatusCode status, String message) {
         //ok by default? cuz this is response success, not response failure
         super(new Payload(status.value(), message), HttpStatus.OK);
     }
 
-    //need the payload body to confirm, get, post
+
     public ResponseSuccess(HttpStatusCode status, String message, Object data) {
         super(new Payload(status.value(), message, data), HttpStatus.OK);
     }

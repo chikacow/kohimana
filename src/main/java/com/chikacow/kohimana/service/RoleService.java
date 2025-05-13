@@ -6,6 +6,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+/**
+ * Managing role, may growth more in next versions
+ * Current the CRUD is done right through the database by running initial script
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j

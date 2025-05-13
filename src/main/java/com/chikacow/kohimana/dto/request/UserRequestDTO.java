@@ -24,20 +24,20 @@ import static com.chikacow.kohimana.util.enums.Gender.*;
 @RequiredArgsConstructor
 public class UserRequestDTO implements Serializable {
 
-    @NotBlank(message = "k: firstname cannot be blank")
+    @NotBlank(message = "firstname must not be blank")
     private String firstName;
 
-    @NotNull(message = "k: lastname cannot be null")
+    @NotNull(message = "lastname must not be null")
     private String lastName;
 
-    @Email(message = "k: email must be in the right format")
+    @Email(message = "email must be in the right format")
     private String email;
 
     //@Pattern(regexp = "^\\d{10}$", message = "k: phone invalid format")
     @PhoneNumber
     private String phone;
 
-    @NotNull(message = "dateOfBirth must be not null")
+    @NotNull(message = "birthday must not be null")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     @JsonFormat(pattern = "MM-dd-yyyy")
     private Date dateOfBirth;

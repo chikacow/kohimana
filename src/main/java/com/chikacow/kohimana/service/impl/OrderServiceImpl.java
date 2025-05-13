@@ -11,7 +11,7 @@ import com.chikacow.kohimana.repository.ProductRepository;
 import com.chikacow.kohimana.repository.SeatRepository;
 import com.chikacow.kohimana.service.OrderItemService;
 import com.chikacow.kohimana.service.OrderService;
-import com.chikacow.kohimana.service.SearService;
+import com.chikacow.kohimana.service.SeatService;
 import com.chikacow.kohimana.service.UserService;
 import com.chikacow.kohimana.util.enums.OrderStatus;
 import lombok.RequiredArgsConstructor;
@@ -29,14 +29,10 @@ import java.util.Set;
 @Slf4j
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
-
     private final OrderRepository orderRepository;
-    private final SeatRepository seatRepository;
-    private final ProductRepository productRepository;
-    private final OrderItemRepository orderItemRepository;
     private final OrderItemService orderItemService;
     private final UserService userService;
-    private final SearService searService;
+    private final SeatService searService;
 
     @Transactional
     public OrderResponseDTO createOrder(OrderRequestDTO request) {
@@ -46,14 +42,9 @@ public class OrderServiceImpl implements OrderService {
 
         Seat seat = searService.getSeatById(request.getSeatID());
 
-
         List<OrderItemRequestDTO> orderItemRequestDTOList = request.getItems();
 
-        //nhan ve 1 list orderitemreqdto, tra ve 1 set oditem
         Set<OrderItem> orderItems = orderItemService.createOrderItemsFromDTO(orderItemRequestDTOList);
-
-
-
 
         Order order = Order.builder()
                 .seat(seat)

@@ -27,13 +27,13 @@ public class MinioService {
 
             String filename = UUID.randomUUID() + "-" + file.getOriginalFilename();
 
-            // Đảm bảo bucket tồn tại
+            //assure the existence of bucket
             boolean found = minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucket).build());
             if (!found) {
                 minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucket).build());
             }
 
-            // Upload file
+            //file upload
             minioClient.putObject(PutObjectArgs.builder()
                     .bucket(bucket)
                     .object(filename)
@@ -41,13 +41,13 @@ public class MinioService {
                     .contentType(file.getContentType())
                     .build());
 
-            // Trả về link (nếu bucket public thì bạn có thể mở được ngay)
+
             return minioClient.getPresignedObjectUrl(
                     GetPresignedObjectUrlArgs.builder()
                             .bucket(bucket)
                             .object(filename)
                             .method(Method.GET)
-                            .expiry(60 * 60) // URL sống 1 giờ
+                            .expiry(60 * 60) // TTL of url
                             .build()
             );
         } catch (Exception e) {

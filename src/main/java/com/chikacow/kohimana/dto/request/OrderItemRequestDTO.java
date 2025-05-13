@@ -10,10 +10,10 @@ import lombok.*;
 @AllArgsConstructor
 @RequiredArgsConstructor
 public class OrderItemRequestDTO {
-    @NotNull(message = "Product ID is required")
+    @NotNull(message = "product id is required")
     private Long productID;
 
-    @Min(value = 1, message = "Quantity must be at least 1")
+    @Min(value = 1, message = "quantity stays at least 1")
     private Integer quantity;
 
     private String note;

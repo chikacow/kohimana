@@ -14,7 +14,7 @@ import java.util.Date;
 @Getter
 @Setter
 @MappedSuperclass
-public abstract class AbstractEntity<T> implements Serializable { //theem seri cho do bij warning
+public abstract class AbstractEntity<T> implements Serializable { //avoid warnings
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

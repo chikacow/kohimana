@@ -12,19 +12,19 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> getExceptionHandler(Exception e) {
-        //return ResponseEntity.status(69).body(e.getMessage() + " " + e.getClass());
+
         return new ResponseEntity<>(e.getMessage() + " " + e.getClass(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(SaveToDBException.class)
     public ResponseEntity<String> handleSaveDBExeption (Exception e) {
-        //return ResponseEntity.status(69).body(e.getMessage() + " " + e.getClass());
+
         return new ResponseEntity<>(e.getMessage() + " " + e.getClass(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(InvalidDataException.class)
     public ResponseEntity<String> handleInvalidDataException (Exception e) {
-        //return ResponseEntity.status(69).body(e.getMessage() + " " + e.getClass());
+
         return new ResponseEntity<>(e.getMessage() + " " + e.getClass(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

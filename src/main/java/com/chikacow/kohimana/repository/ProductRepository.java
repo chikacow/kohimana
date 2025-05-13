@@ -14,5 +14,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             nativeQuery = true)
     public Optional<Product> findByCode(@Param("code") String code);
 
+    @Query(value = "SELECT * from tbl_product where id = :id LIMIT 1", nativeQuery = true)
+    public Optional<Product> findById(@Param("id") Long id);
+
 
 }

@@ -2,6 +2,7 @@ package com.chikacow.kohimana.controller;
 
 import com.chikacow.kohimana.dto.request.UpdateUserRequestDTO;
 import com.chikacow.kohimana.dto.request.UserRequestDTO;
+import com.chikacow.kohimana.dto.response.ResponseData;
 import com.chikacow.kohimana.dto.response.UserResponseDTO;
 import com.chikacow.kohimana.model.User;
 import com.chikacow.kohimana.service.UserService;
@@ -33,14 +34,9 @@ public class UserController {
     @GetMapping("/{username}")
     public ResponseEntity<UserResponseDTO> getUser(@PathVariable String username) {
 
+
         UserResponseDTO res = userService.getUserInfo(username);
 
-        User user = userService.getByUsername(username);
-        log.info(user.getAuthorities().toString());
-
-        log.info("from sch: {} ", SecurityContextHolder.getContext().getAuthentication().getAuthorities().toString());
-
-        log.info("Hi from logger");
         return ResponseEntity.ok().body(res);
     }
 

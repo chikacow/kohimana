@@ -19,15 +19,18 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CategoryRequestDTO {
 
-    @NotBlank
+    @NotBlank(message = "category id must not be blank")
     private String categoryID;
 
-    @NotBlank
+    @NotBlank(message = "category name must not be blank")
     private String name;
 
-    @NotBlank
+    @NotBlank(message = "must specify category type")
     @Enumerated(EnumType.STRING)
     private CategoryType type;
 
+    /**
+     * digging for further utilities
+     */
     private List<String> productCodes;
 }

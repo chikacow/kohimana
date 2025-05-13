@@ -26,7 +26,15 @@ public class ProductServiceImpl implements ProductService {
 
     private final FileService fileService;
 
+
+    /**
+     * Create product with uploading images
+     * Required upload image by the different url for file upload first
+     * @param productRequestDTO
+     * @return
+     */
     @Override
+    @Transactional
     public ProductResponseDTO createProduct(ProductRequestDTO productRequestDTO) {
 
         Category category = new Category();
@@ -34,9 +42,7 @@ public class ProductServiceImpl implements ProductService {
             category = categoryService.getCategoryByCode(productRequestDTO.getCateCode());
         }
 
-
         String cloudUrl = resolveImageUrl(productRequestDTO.getLocalImageUrl());
-
 
         Product newProduct = Product.builder()
                 .code(productRequestDTO.getCode())
@@ -56,12 +62,16 @@ public class ProductServiceImpl implements ProductService {
                 .price(savedProduct.getPrice())
                 .imageUrl(savedProduct.getImageUrl())
                 .categoryID(savedProduct.getCategory() != null ? savedProduct.getCategory().getCode() : "none")
-
                 .build();
 
         return res;
     }
 
+    /**
+     * Get product insensitive data but enough for customer
+     * @param id
+     * @return
+     */
     @Override
     public ProductResponseDTO getProductInfo(Long id) {
         Product retrived = productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("product not found"));
@@ -77,7 +87,14 @@ public class ProductServiceImpl implements ProductService {
         return res;
     }
 
+    /**
+     * For manager to update product's data
+     * @param id
+     * @param productRequestDTO
+     * @return
+     */
     @Override
+    @Transactional
     public ProductResponseDTO updateProductInfo(Long id, ProductRequestDTO productRequestDTO) {
         Product product = productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("product not found"));
 
@@ -113,18 +130,28 @@ public class ProductServiceImpl implements ProductService {
         return res;
     }
 
+    /**
+     * Delete product from the database. The file will be deleted anyway
+     * @param id
+     * @return
+     */
     @Override
     public Long deleteProduct(Long id) {
         Product product = productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("product not found"));
-        //fileService.deleteFileByCloud(product.getImageUrl());
         productRepository.delete(product);
         return product.getId();
     }
 
+    /**
+     * Get product by id, only return 1 records
+     * @param id
+     * @return
+     */
     @Override
     public Product getProductById(Long id) {
         return productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("product not found"));
     }
+
 
     @Override
     @Transactional
@@ -157,7 +184,11 @@ public class ProductServiceImpl implements ProductService {
         return null;
     }
 
-
+    /**
+     * handle the file upload
+     * @param localUrl
+     * @return
+     */
     private String resolveImageUrl(String localUrl) {
         String rt = "not found";
         try {

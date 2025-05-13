@@ -13,11 +13,11 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {
 
 
-    @Query(value = "SELECT * FROM tbl_user WHERE username = :username AND is_active = true",
+    @Query(value = "SELECT * FROM tbl_user WHERE username = :username AND is_active = true LIMIT 1",
             nativeQuery = true)
     public Optional<User> findByUsername(@Param("username") String username);
 
-    @Query(value = "SELECT * FROM tbl_user WHERE email = :email AND is_active = true",
+    @Query(value = "SELECT * FROM tbl_user WHERE email = :email AND is_active = true LIMIT 1",
             nativeQuery = true)
     public Optional<User> findByEmail(@Param("email") String email);
 

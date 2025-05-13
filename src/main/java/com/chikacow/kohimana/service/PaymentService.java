@@ -8,7 +8,6 @@ public interface PaymentService {
     public PaymentResponseDTO processPayment(PaymentRequestDTO requestDTO);
 
 
-
     public PaymentResponseDTO checkPaymentStatus(String transactionId);
 
 

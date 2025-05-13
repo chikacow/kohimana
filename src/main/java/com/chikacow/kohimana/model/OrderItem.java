@@ -28,8 +28,8 @@ public class OrderItem extends AbstractEntity<Long> {
     private Integer quantity;
 
     @Column(name = "price", nullable = false)
-    private BigDecimal price; // Giá tại thời điểm order
+    private BigDecimal price; // price not the moment the order is made
 
     @Column(name = "note")
-    private String note; // Ghi chú cho món
+    private String note;
 }

@@ -15,9 +15,9 @@ public interface UserService {
 
     public User getUserByEmail(String email);
 
-    public User getByUsername(String userName);
+    public User getByUsername(String username);
 
-    public UserResponseDTO createUser(UserRequestDTO userRequestDTO);
+    //public UserResponseDTO createUser(UserRequestDTO userRequestDTO);
 
     public User updateUser(User user);
 

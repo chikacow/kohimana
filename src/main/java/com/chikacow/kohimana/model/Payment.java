@@ -49,7 +49,7 @@ public class Payment extends AbstractEntity<Long> {
     @Enumerated(EnumType.STRING)
     private MoneyCurrency currency;
 
-    // Sử dụng @PrePersist để tự động set user từ Order trước khi lưu
+    //set order to user automatically
     @PrePersist
     public void prePersist() {
         if (this.order != null && this.user == null) {
@@ -64,6 +64,9 @@ public class Payment extends AbstractEntity<Long> {
         }
     }
 
+    /**
+     * generate transactionID function
+     */
     private void generateTransactionId() {
         long timestamp = Instant.now().toEpochMilli();
         int randomNum = ThreadLocalRandom.current().nextInt(1000, 9999);

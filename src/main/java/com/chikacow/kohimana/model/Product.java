@@ -33,7 +33,6 @@ public class Product extends AbstractEntity<Long> {
     //@OneToOne(cascade = CascadeType.REMOVE)
     private String imageUrl;
 
-
     @ManyToOne
     @JoinColumn(name = "cate_id", referencedColumnName = "id")
     private Category category;
