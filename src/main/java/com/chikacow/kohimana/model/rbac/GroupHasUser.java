@@ -1,5 +1,7 @@
-package com.chikacow.kohimana.model;
+package com.chikacow.kohimana.model.rbac;
 
+import com.chikacow.kohimana.model.AbstractEntity;
+import com.chikacow.kohimana.model.User;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;

@@ -1,9 +1,7 @@
-package com.chikacow.kohimana.model;
+package com.chikacow.kohimana.model.rbac;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import com.chikacow.kohimana.model.AbstractEntity;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -17,7 +15,11 @@ import java.util.Set;
 @Setter
 @RequiredArgsConstructor
 public class Group extends AbstractEntity<Integer> {
+
+    @Column(name = "name")
     private String name;
+
+    @Column(name = "description")
     private String description;
 
     @OneToOne

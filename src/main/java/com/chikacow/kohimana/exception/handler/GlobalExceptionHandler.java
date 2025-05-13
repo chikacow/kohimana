@@ -1,7 +1,8 @@
-package com.chikacow.kohimana.exception;
+package com.chikacow.kohimana.exception.handler;
 
 
-import com.chikacow.kohimana.util.helper.CustomHttpStatus;
+import com.chikacow.kohimana.exception.InvalidDataException;
+import com.chikacow.kohimana.exception.SaveToDBException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;

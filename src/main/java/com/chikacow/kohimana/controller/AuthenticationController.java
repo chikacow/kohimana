@@ -35,6 +35,14 @@ public class AuthenticationController {
         return ResponseEntity.ok().body(dto);
     }
 
+    @PostMapping("/create-user")
+    public ResponseEntity<UserResponseDTO> createWorker(@Valid @RequestBody UserRequestDTO userRequestDTO) {
+
+        UserResponseDTO dto = authenticationService.registerWorker(userRequestDTO);
+
+        return ResponseEntity.ok().body(dto);
+    }
+
     @PostMapping("/access-token")
     public ResponseEntity<TokenResponse> login(@RequestBody SignInRequest signInRequest) {
 

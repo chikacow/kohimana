@@ -1,5 +1,6 @@
-package com.chikacow.kohimana.model;
+package com.chikacow.kohimana.model.rbac;
 
+import com.chikacow.kohimana.model.AbstractEntity;
 import jakarta.persistence.*;
 import jakarta.persistence.Table;
 import lombok.Getter;

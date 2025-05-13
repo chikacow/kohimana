@@ -21,4 +21,6 @@ public interface AuthenticationService {
     public String changePassword(ResetPasswordDTO resetPasswordDTO);
 
     public UserResponseDTO registerUser(UserRequestDTO userRequestDTO);
+
+    public UserResponseDTO registerWorker(UserRequestDTO userRequestDTO);
 }

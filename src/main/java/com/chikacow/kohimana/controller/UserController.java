@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,6 +35,10 @@ public class UserController {
 
         UserResponseDTO res = userService.getUserInfo(username);
 
+        User user = userService.getByUsername(username);
+        log.info(user.getAuthorities().toString());
+
+        log.info("from sch: {} ", SecurityContextHolder.getContext().getAuthentication().getAuthorities().toString());
 
         log.info("Hi from logger");
         return ResponseEntity.ok().body(res);

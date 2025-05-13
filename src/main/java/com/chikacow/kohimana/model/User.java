@@ -1,12 +1,17 @@
 package com.chikacow.kohimana.model;
 
+import com.chikacow.kohimana.model.rbac.GroupHasUser;
+import com.chikacow.kohimana.model.rbac.Role;
+import com.chikacow.kohimana.model.rbac.UserHasRole;
 import com.chikacow.kohimana.util.enums.Gender;
 import jakarta.persistence.*;
 import jakarta.persistence.Table;
 import lombok.*;
-import org.aspectj.weaver.ast.Or;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.io.Serializable;
 import java.util.*;
 
@@ -54,12 +59,31 @@ public class User extends AbstractEntity<Long> implements Serializable, UserDeta
     @OneToMany(mappedBy = "user")
     private Set<GroupHasUser> users = new HashSet<>();
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private Set<UserHasRole> roles = new HashSet<>();
 
+
+
+    public void addRole(UserHasRole role) {
+        if (this.roles == null) {
+            this.roles = new HashSet<>();
+        }
+        this.roles.add(role);
+        role.setUser(this); // cập nhật quan hệ 2 chiều
+    }
+
+    /**
+     * get predefined authorities object from my designed rbac
+     * @return
+     */
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        List<Role> roleList = roles.stream().map(UserHasRole::getRole).toList();
+
+        List<String> roleName = roleList.stream().map(Role::getName).toList();
+
+        return roleName.stream().map(SimpleGrantedAuthority::new).toList();
+
     }
 
     @Override

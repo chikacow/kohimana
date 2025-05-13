@@ -1,4 +1,4 @@
-package com.chikacow.kohimana.exception;
+package com.chikacow.kohimana.dto.response;
 
 import java.util.Date;
 

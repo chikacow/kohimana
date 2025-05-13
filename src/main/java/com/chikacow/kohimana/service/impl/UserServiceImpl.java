@@ -21,6 +21,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
@@ -53,6 +54,7 @@ public class UserServiceImpl implements UserService {
                 } catch (UsernameNotFoundException e) {
                     System.out.println("oh no");
                 }
+                //log.info(j.getAuthorities().toString());
                 return j;
             }
         };

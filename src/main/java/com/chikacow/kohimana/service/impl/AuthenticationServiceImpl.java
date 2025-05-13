@@ -5,22 +5,26 @@ import com.chikacow.kohimana.dto.request.SignInRequest;
 import com.chikacow.kohimana.dto.request.UserRequestDTO;
 import com.chikacow.kohimana.dto.response.TokenResponse;
 import com.chikacow.kohimana.dto.response.UserResponseDTO;
+import com.chikacow.kohimana.exception.HaveNoAccessToResourceException;
 import com.chikacow.kohimana.exception.InvalidDataException;
 import com.chikacow.kohimana.exception.SaveToDBException;
 import com.chikacow.kohimana.model.Token;
 import com.chikacow.kohimana.model.User;
+import com.chikacow.kohimana.model.rbac.Role;
+import com.chikacow.kohimana.model.rbac.UserHasRole;
+import com.chikacow.kohimana.repository.UserHasRoleRepository;
 import com.chikacow.kohimana.repository.UserRepository;
-import com.chikacow.kohimana.service.AuthenticationService;
-import com.chikacow.kohimana.service.JwtService;
-import com.chikacow.kohimana.service.TokenService;
-import com.chikacow.kohimana.service.UserService;
+import com.chikacow.kohimana.service.*;
 import com.chikacow.kohimana.util.enums.TokenType;
 import com.chikacow.kohimana.util.helper.Separate;
 import io.micrometer.common.util.StringUtils;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -29,10 +33,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j(topic = "AUTHENTICATION-SERVICE")
 public class AuthenticationServiceImpl implements AuthenticationService {
 
     private final UserRepository userRepository;
@@ -47,9 +55,16 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     private final PasswordEncoder passwordEncoder;
 
+    private final RoleService  roleService;
+
+    private final UserHasRoleRepository userHasRoleRepository;
+
     public TokenResponse authenticate(SignInRequest request) {
         System.out.println(request.getUsername() + " " + request.getPassword());
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+        Authentication authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+
+        log.info("is_authenticated = {}", authenticate.isAuthenticated());
+        log.info("Authorities = {}", authenticate.getAuthorities().toString());
 
         var user = userRepository.findByUsername(request.getUsername()).orElseThrow(() -> new UsernameNotFoundException("Wrong username or password"));
 
@@ -191,10 +206,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
+    @Transactional(rollbackOn = Exception.class)
     public UserResponseDTO registerUser(UserRequestDTO userRequestDTO) {
         if (userRepository.existsByUsername(userRequestDTO.getUsername())) {
             throw new InvalidDataException("Username already exists");
         }
+
         User newUser = User.builder()
                 .firstName(userRequestDTO.getFirstName())
                 .lastName(userRequestDTO.getLastName())
@@ -208,9 +225,90 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .build();
 
         Optional<User> retrivedUser = Optional.of(userRepository.save(newUser));
+        User rtrU = retrivedUser.get();
+
         if (retrivedUser.isEmpty()) {
             throw new SaveToDBException("Error saving newly created user");
         }
+        Role r = roleService.getRoleByName(com.chikacow.kohimana.util.enums.Role.convertToString(com.chikacow.kohimana.util.enums.Role.CUSTOMER));
+        UserHasRole userRole = UserHasRole.builder()
+                .role(r)
+                .user(retrivedUser.get())
+                .build();
+
+
+
+        rtrU.addRole(userRole);
+
+        Optional<User> uu = Optional.of(userRepository.save(retrivedUser.get()));
+        log.info("new user has: {}", retrivedUser.get().getRoles().size());
+        log.info("authoriteis: {}", uu.get().getAuthorities().size());
+
+
+        UserResponseDTO userResponseDTO = UserResponseDTO.builder()
+                .firstName(retrivedUser.get().getFirstName())
+                .lastName(retrivedUser.get().getLastName())
+                .email(retrivedUser.get().getEmail())
+                .gender(retrivedUser.get().getGender())
+                .username(retrivedUser.get().getUsername())
+                .createdAt(retrivedUser.get().getCreatedAt())
+                .dateOfBirth(userRequestDTO.getDateOfBirth())
+                .phoneNumber(userRequestDTO.getPhone())
+                .build();
+        return userResponseDTO;
+    }
+
+
+    @Override
+    //@Transactional(rollbackOn = Exception.class)
+    public UserResponseDTO registerWorker(UserRequestDTO userRequestDTO) {
+
+        if (!SecurityContextHolder.getContext().getAuthentication().getAuthorities().toString().contains("ADMIN")) {
+            throw new HaveNoAccessToResourceException("Only admin can create staff and manager");
+        }
+        log.info("ADMIN is hereeeeee");
+        if (userRepository.existsByUsername(userRequestDTO.getUsername())) {
+            throw new InvalidDataException("Username already exists");
+        }
+
+        User newUser = User.builder()
+                .firstName(userRequestDTO.getFirstName())
+                .lastName(userRequestDTO.getLastName())
+                .email(userRequestDTO.getEmail())
+                .gender(userRequestDTO.getGender())
+                .dateOfBirth(userRequestDTO.getDateOfBirth())
+                .phoneNumber(userRequestDTO.getPhone())
+                .username(userRequestDTO.getUsername())
+                .password(passwordEncoder.encode(userRequestDTO.getPassword()))
+                .isActive(Boolean.TRUE)
+                .build();
+
+        Optional<User> retrivedUser = Optional.of(userRepository.save(newUser));
+        User rtrU = retrivedUser.get();
+
+        if (retrivedUser.isEmpty()) {
+            throw new SaveToDBException("Error saving newly created user");
+        }
+        List<Role> listRole = new ArrayList<>();
+        for (String rl : userRequestDTO.getRoles()) {
+            Role r = roleService.getRoleByName(rl);
+            listRole.add(r);
+        }
+
+        for (Role r : listRole) {
+            UserHasRole userRole = UserHasRole.builder()
+                    .role(r)
+                    .user(retrivedUser.get())
+                    .build();
+
+            rtrU.addRole(userRole);
+        }
+
+
+        Optional<User> uu = Optional.of(userRepository.save(retrivedUser.get()));
+        log.info("new user has: {}", retrivedUser.get().getRoles().size());
+        log.info("authoriteis: {}", uu.get().getAuthorities().size());
+
 
         UserResponseDTO userResponseDTO = UserResponseDTO.builder()
                 .firstName(retrivedUser.get().getFirstName())

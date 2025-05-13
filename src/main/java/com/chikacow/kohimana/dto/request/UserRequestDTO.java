@@ -1,6 +1,7 @@
 package com.chikacow.kohimana.dto.request;
 
 import com.chikacow.kohimana.util.enums.Gender;
+import com.chikacow.kohimana.util.enums.Role;
 import com.chikacow.kohimana.validator.GenderSubset;
 import com.chikacow.kohimana.validator.PhoneNumber;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -51,4 +52,5 @@ public class UserRequestDTO implements Serializable {
     @NotNull
     private String password;
 
+    private List<String> roles;
 }
