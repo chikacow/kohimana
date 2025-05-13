@@ -1,6 +1,7 @@
 package com.chikacow.kohimana.service;
 
 import com.chikacow.kohimana.dto.request.ProductRequestDTO;
+import com.chikacow.kohimana.dto.response.PageResponse;
 import com.chikacow.kohimana.dto.response.ProductResponseDTO;
 import com.chikacow.kohimana.model.Product;
 
@@ -18,4 +19,6 @@ public interface ProductService {
     public Product getProductById(Long id);
 
     public ProductResponseDTO createTonsProduct(List<ProductRequestDTO> productRequestDTOlist);
+
+    public PageResponse<?> getAllProducts(int pageNo, int pageSize, String sortBy);
 }

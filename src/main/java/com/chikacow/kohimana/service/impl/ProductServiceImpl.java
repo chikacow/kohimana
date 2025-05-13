@@ -1,10 +1,13 @@
 package com.chikacow.kohimana.service.impl;
 
 import com.chikacow.kohimana.dto.request.ProductRequestDTO;
+import com.chikacow.kohimana.dto.response.PageResponse;
 import com.chikacow.kohimana.dto.response.ProductResponseDTO;
+import com.chikacow.kohimana.dto.response.UserResponseDTO;
 import com.chikacow.kohimana.exception.ResourceNotFoundException;
 import com.chikacow.kohimana.model.Category;
 import com.chikacow.kohimana.model.Product;
+import com.chikacow.kohimana.model.User;
 import com.chikacow.kohimana.repository.ProductRepository;
 import com.chikacow.kohimana.service.CategoryService;
 import com.chikacow.kohimana.service.FileService;
@@ -12,10 +15,20 @@ import com.chikacow.kohimana.service.ProductService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static com.chikacow.kohimana.util.AppConst.SORT_BY;
 
 @Service
 @Slf4j
@@ -183,6 +196,51 @@ public class ProductServiceImpl implements ProductService {
 
         return null;
     }
+
+    @Override
+    public PageResponse<?> getAllProducts(int pageNo, int pageSize, String sortBy) {
+        int realPageNo = 0;
+        if (pageNo > 0) {
+            realPageNo = pageNo - 1;
+        }
+        List<Sort.Order> sorts = new ArrayList<>();
+        if (StringUtils.hasLength(sortBy)) {
+            // firstName:asc|desc
+            Pattern pattern = Pattern.compile(SORT_BY);
+            Matcher matcher = pattern.matcher(sortBy);
+            if (matcher.find()) {
+                if (matcher.group(3).equalsIgnoreCase("asc")) {
+                    sorts.add(new Sort.Order(Sort.Direction.ASC, matcher.group(1)));
+                } else {
+                    sorts.add(new Sort.Order(Sort.Direction.DESC, matcher.group(1)));
+                }
+            }
+        }
+        Pageable pageable = PageRequest.of(realPageNo, pageSize, Sort.by(sorts));
+
+        Page<Product> page = productRepository.findAll(pageable);
+
+        List<ProductResponseDTO> resList = page.stream().map(prod -> ProductResponseDTO.builder()
+                .code(prod.getCode())
+                .name(prod.getName())
+                .description(prod.getDescription())
+                .price(prod.getPrice())
+                .imageUrl(prod.getImageUrl())
+                .categoryID(prod.getCategory() != null ? prod.getCategory().getCode() : "none")
+                .build()).toList();
+
+
+
+        return PageResponse.builder()
+                .items(resList)
+                .pageNo(realPageNo)
+                .pageSize(pageSize)
+                .totalPage(page.getTotalPages())
+                .build();
+    }
+
+
+
 
     /**
      * handle the file upload

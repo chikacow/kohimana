@@ -41,13 +41,7 @@ public class AdminProductController {
 //        return ResponseEntity.ok(res);
 //    }
 
-    @GetMapping("/{productId}")
-    public ResponseEntity<ProductResponseDTO> getProductInfo(@PathVariable Long productId) {
 
-        ProductResponseDTO res = productService.getProductInfo(productId);
-
-        return ResponseEntity.ok(res);
-    }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
     @PutMapping("/{productId}")
