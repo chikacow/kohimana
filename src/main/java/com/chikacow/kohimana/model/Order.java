@@ -1,6 +1,7 @@
 package com.chikacow.kohimana.model;
 
 import com.chikacow.kohimana.util.enums.OrderStatus;
+import com.chikacow.kohimana.util.enums.PaymentMethod;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +40,8 @@ public class Order extends AbstractEntity<Long> {
     @Column(name = "total_amount", nullable = false)
     private BigDecimal totalAmount = BigDecimal.ZERO;
 
+    @OneToMany(mappedBy = "order")
+    private List<Payment> paymentList = new ArrayList<>();
 
     public BigDecimal calculateTotal() {
         if (items == null || items.isEmpty()) {
