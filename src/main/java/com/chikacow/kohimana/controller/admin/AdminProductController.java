@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,7 +26,7 @@ public class AdminProductController {
     private final ProductService productService;
     private final CategoryService categoryService;
 
-
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
     @PostMapping("/create")
     public ResponseEntity<ProductResponseDTO> createNewProduct(@RequestBody ProductRequestDTO productRequestDTO) {
         ProductResponseDTO res = productService.createProduct(productRequestDTO);
@@ -48,6 +49,7 @@ public class AdminProductController {
         return ResponseEntity.ok(res);
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
     @PutMapping("/{productId}")
     public ResponseEntity<ProductResponseDTO> updateProduct(@PathVariable Long productId, @RequestBody ProductRequestDTO productRequestDTO) {
 
@@ -56,6 +58,7 @@ public class AdminProductController {
         return ResponseEntity.ok(res);
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
     @DeleteMapping("/{productId}")
     public ResponseEntity<Long> deleteProduct(@PathVariable Long productId) {
 

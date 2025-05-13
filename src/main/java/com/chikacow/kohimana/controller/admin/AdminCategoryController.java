@@ -6,6 +6,7 @@ import com.chikacow.kohimana.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +20,7 @@ import java.util.List;
 public class AdminCategoryController {
     private final CategoryService categoryService;
 
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
     @PostMapping("/create")
     public ResponseEntity<CategoryResponseDTO> createNewCategory(@RequestBody CategoryRequestDTO requestDTO) {
 
@@ -44,6 +46,7 @@ public class AdminCategoryController {
         return ResponseEntity.ok(res);
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
     @PutMapping("/{categoryID}")
     public ResponseEntity<CategoryResponseDTO> updateCategoryInfo(@PathVariable("categoryID") String categoryID, @RequestBody CategoryRequestDTO requestDTO) {
 
@@ -52,6 +55,7 @@ public class AdminCategoryController {
         return ResponseEntity.ok(res);
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
     @DeleteMapping("/{categoryID}")
     public ResponseEntity<String> deleteCategory(@PathVariable("categoryID") String categoryID) {
         String cateId = categoryService.deleteCategory(categoryID);

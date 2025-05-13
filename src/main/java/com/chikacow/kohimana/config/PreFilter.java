@@ -28,7 +28,7 @@ import java.io.IOException;
 //hung cac request vao ung dung, xu ly r ms chuyen sang cac api
 @Component
 @RequiredArgsConstructor
-//@EnableMethodSecurity(prePostEnabled = true)
+@EnableMethodSecurity(prePostEnabled = true)
 public class PreFilter extends OncePerRequestFilter {
     private final UserService userService;
     private final JwtService jwtService;

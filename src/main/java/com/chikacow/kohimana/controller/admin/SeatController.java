@@ -5,6 +5,7 @@ import com.chikacow.kohimana.service.SearService;
 import com.chikacow.kohimana.util.enums.TableStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -32,6 +33,7 @@ public class SeatController {
      * @param id
      * @return
      */
+
     @GetMapping("/{id}")
     public ResponseEntity<Seat> getSeatById(@PathVariable Long id) {
         return ResponseEntity.ok(seatService.getSeatById(id));
@@ -67,6 +69,7 @@ public class SeatController {
      * @param seat
      * @return
      */
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
     @PostMapping("/create")
     public ResponseEntity<Seat> createSeat(@RequestBody Seat seat) {
         Seat createdSeat = seatService.createSeat(seat);
@@ -90,6 +93,7 @@ public class SeatController {
      * @param seatDetails
      * @return
      */
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
     @PutMapping("/{id}")
     public ResponseEntity<Seat> updateSeat(@PathVariable Long id, @RequestBody Seat seatDetails) {
         return ResponseEntity.ok(seatService.updateSeat(id, seatDetails));
@@ -101,17 +105,20 @@ public class SeatController {
      * @param status
      * @return
      */
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
     @PatchMapping("/{id}/status")
     public ResponseEntity<Seat> updateSeatStatus(@PathVariable Long id, @RequestParam TableStatus status) {
         return ResponseEntity.ok(seatService.updateSeatStatus(id, status));
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteSeat(@PathVariable Long id) {
         seatService.deleteSeat(id);
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
     @PostMapping("/createBatch")
     public ResponseEntity<List<Seat>> createBatchSeat(@RequestBody List<Seat> seat) {
         List<Seat> createdSeat = seatService.createBatchSeat(seat);

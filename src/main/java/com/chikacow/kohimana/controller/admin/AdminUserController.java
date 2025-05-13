@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,6 +29,7 @@ public class AdminUserController {
      * @param username username of user
      * @return account status after applied change
      */
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
     @PatchMapping("/{username}/change-status")
     public ResponseEntity<String> changeUserAccountStatus(@PathVariable("username") String username) {
         AccountStatus newStatus = userService.changeAccountStatus(username);
@@ -39,6 +41,7 @@ public class AdminUserController {
      * Will be implemented in paging process
      *
      */
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
     @Operation(summary = "Get list of users per pageNo", description = "Send a request via this API to get user list by pageNo and pageSize")
     @GetMapping("/list")
     public ResponseEntity<?> getAllUsers(@RequestParam(defaultValue = "0", required = false) int pageNo,
@@ -51,6 +54,8 @@ public class AdminUserController {
 
     }
 
+
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
     @Operation(summary = "Get list of users with sort by multiple columns", description = "Send a request via this API to get user list by pageNo, pageSize and sort by multiple column")
     @GetMapping("/list-with-sort-by-multiple-columns")
     public ResponseEntity<?> getAllUsersWithSortByMultipleColumns(@RequestParam(defaultValue = "0", required = false) int pageNo,
@@ -60,6 +65,7 @@ public class AdminUserController {
         return ResponseEntity.ok(userService.getAllUsersWithSortByMultipleColumns(pageNo, pageSize, sorts));
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
     @Operation(summary = "Get list of users with sort by multiple columns", description = "Send a request via this API to get user list by pageNo, pageSize and sort by multiple column")
     @GetMapping("/list-with-sort-by-multiple-columns-search")
     public ResponseEntity<?> getAllUsersWithSortByMultipleColumnsAndSearch(@RequestParam(defaultValue = "0", required = false) int pageNo,
