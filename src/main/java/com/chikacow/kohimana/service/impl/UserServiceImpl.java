@@ -5,7 +5,9 @@ import com.chikacow.kohimana.dto.request.UserRequestDTO;
 import com.chikacow.kohimana.dto.response.PageResponse;
 import com.chikacow.kohimana.dto.response.UserResponseDTO;
 import com.chikacow.kohimana.exception.HaveNoAccessToResourceException;
+import com.chikacow.kohimana.exception.ResourceNotFoundException;
 import com.chikacow.kohimana.model.User;
+import com.chikacow.kohimana.model.rbac.Role;
 import com.chikacow.kohimana.repository.SearchRepository;
 import com.chikacow.kohimana.repository.UserRepository;
 import com.chikacow.kohimana.service.UserService;
@@ -213,6 +215,16 @@ public class UserServiceImpl implements UserService {
     @Override
     public PageResponse<?> getAllUsersWithSortByMultipleColumnsAndSearch(int pageNo, int pageSize, String sortBy, String search) {
         return searchRepository.getAllUsersWithSortByMultipleColumnsAndSearch(pageNo, pageSize, sortBy, search);
+    }
+
+    @Override
+    public User getUserByUsernameAndRole(String username, Integer roleID) {
+        return userRepository.findByUsernameAndRole(username, roleID).orElseThrow(() -> new ResourceNotFoundException("no user with given username and role"));
+    }
+
+    @Override
+    public User getUserByStaffId(Long staffId) {
+        return userRepository.findByStaffId(staffId).orElseThrow(() -> new ResourceNotFoundException("no user with given staff id"));
     }
 
 

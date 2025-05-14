@@ -5,6 +5,7 @@ import com.chikacow.kohimana.dto.request.UserRequestDTO;
 import com.chikacow.kohimana.dto.response.PageResponse;
 import com.chikacow.kohimana.dto.response.UserResponseDTO;
 import com.chikacow.kohimana.model.User;
+import com.chikacow.kohimana.model.rbac.Role;
 import com.chikacow.kohimana.util.enums.AccountStatus;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
@@ -27,6 +28,9 @@ public interface UserService {
 
     public PageResponse<?> getAllUsersWithSortByMultipleColumnsAndSearch(int pageNo, int pageSize, String sortBy, String search);
 
+    public User getUserByUsernameAndRole(String username, Integer roleID);
+
+    public User getUserByStaffId(Long staffId);
     //________UserController
     public UserResponseDTO getUserInfo(String username);
 
