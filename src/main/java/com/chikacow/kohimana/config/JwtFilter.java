@@ -60,30 +60,6 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
-        try {
-            username = jwtService.extractUsername(token, TokenType.ACCESS_TOKEN);
-        } catch (ExpiredJwtException e) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json");
-            response.setCharacterEncoding("UTF-8");
-            response.getWriter().write("{\"message\": \"Token has expired\", \"status\": 401}");
-            //filterChain.doFilter(request, response);
-            //de tranh response bi ghi de o nhung filter khac
-            return;
-        } catch (MalformedJwtException e) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json");
-            response.setCharacterEncoding("UTF-8");
-            response.getWriter().write("{\"message\": \"Wrong token format\", \"status\": 401}");
-            return;
-        } catch (Exception e) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json");
-            response.setCharacterEncoding("UTF-8");
-            response.getWriter().write("{\"message\": \"Problem with JWT token\", \"status\": 401}");
-            return;
-        }
-
 
         if (StringUtils.isNotEmpty(username) && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetaill = userService.getUserDetailsService().loadUserByUsername(username);
