@@ -16,6 +16,7 @@ import com.chikacow.kohimana.model.rbac.UserHasRole;
 import com.chikacow.kohimana.repository.UserHasRoleRepository;
 import com.chikacow.kohimana.repository.UserRepository;
 import com.chikacow.kohimana.service.*;
+import com.chikacow.kohimana.util.enums.Gender;
 import com.chikacow.kohimana.util.enums.TokenType;
 import com.chikacow.kohimana.util.helper.Separate;
 import io.micrometer.common.util.StringUtils;
@@ -222,7 +223,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .firstName(firstname_smooth)
                 .lastName(lastname_smooth)
                 .email(userRequestDTO.getEmail())
-                .gender(userRequestDTO.getGender())
+                .gender(Gender.fromString(userRequestDTO.getGender()))
                 .dateOfBirth(userRequestDTO.getDateOfBirth())
                 .phoneNumber(userRequestDTO.getPhone())
                 .username(userRequestDTO.getUsername())
@@ -286,7 +287,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .firstName(userRequestDTO.getFirstName())
                 .lastName(userRequestDTO.getLastName())
                 .email(userRequestDTO.getEmail())
-                .gender(userRequestDTO.getGender())
+                .gender(Gender.fromString(userRequestDTO.getGender()))
                 .dateOfBirth(userRequestDTO.getDateOfBirth())
                 .phoneNumber(userRequestDTO.getPhone())
                 .username(userRequestDTO.getUsername())

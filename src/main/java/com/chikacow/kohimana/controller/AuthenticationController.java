@@ -11,6 +11,7 @@ import com.chikacow.kohimana.service.AuthenticationService;
 import com.chikacow.kohimana.service.impl.AuthenticationServiceImpl;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -50,7 +51,7 @@ public class AuthenticationController {
         return ResponseEntity.ok().body(dto);
     }
 
-    @PostMapping("/access-token")
+    @PostMapping("/login")
     public ResponseEntity<TokenResponse> login(@Valid @RequestBody SignInRequest signInRequest) {
 
        TokenResponse res = authenticationService.authenticate(signInRequest);

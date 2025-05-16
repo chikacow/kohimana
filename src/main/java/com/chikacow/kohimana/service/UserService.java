@@ -14,6 +14,7 @@ import java.util.List;
 public interface UserService {
     public UserDetailsService getUserDetailsService();
 
+    public User getUserById(Long id);
     public User getUserByEmail(String email);
 
     public User getByUsername(String username);
@@ -32,9 +33,9 @@ public interface UserService {
 
     public User getUserByStaffId(Long staffId);
     //________UserController
-    public UserResponseDTO getUserInfo(String username);
+    public UserResponseDTO getUserInfo(Long id);
 
-    public UserResponseDTO updateUserInfo(String username, UpdateUserRequestDTO requestDTO);
+    public UserResponseDTO updateUserInfo(Long id, UpdateUserRequestDTO requestDTO);
 
     public AccountStatus changeAccountStatus(String username);
 

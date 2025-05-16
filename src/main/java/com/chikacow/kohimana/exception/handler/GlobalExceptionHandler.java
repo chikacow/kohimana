@@ -2,7 +2,6 @@ package com.chikacow.kohimana.exception.handler;
 
 
 import com.chikacow.kohimana.dto.response.ResponseData;
-import com.chikacow.kohimana.dto.response.ResponseError;
 import com.chikacow.kohimana.dto.response.ResponseException;
 import com.chikacow.kohimana.exception.InvalidDataException;
 import com.chikacow.kohimana.exception.SaveToDBException;
@@ -14,6 +13,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,16 +29,16 @@ public class GlobalExceptionHandler {
         Map<String, String> response = new HashMap<>();
 
         if (cause instanceof com.fasterxml.jackson.databind.exc.InvalidFormatException) {
-            response.put("birthOfDate", "Invalid date format. Please use dd-MM-yyyy.");
+            response.put("error", ex.getMessage());
         } else {
-            response.put("birthOfDate", "Invalid request. Could not read JSON.");
+            response.put("error", "Invalid request. Could not read JSON.");
         }
 
         int status = HttpStatus.BAD_REQUEST.value();
 
         return ResponseEntity.status(status).body(ResponseException.builder()
                 .status(status)
-                .message("Invalid date format")
+                .message("Deserialization format layer problem")
                 .exCause(exceptionCause)
                 .exClass(ex.getClass().getName())
                 .data(response)
@@ -68,23 +68,7 @@ public class GlobalExceptionHandler {
     }
 
 
-    @ExceptionHandler(InvalidFormatException.class)
-    public ResponseEntity<ResponseException<?>> handleInvalidFormat(HttpMessageNotReadableException ex) {
-        Throwable cause = ex.getCause();
-        String exceptionCause = (cause == null) ? null : cause.getClass().getName();
-        Map<String, String> error = new HashMap<>();
-        error.put("dateOfBirth", "Ngày sinh không đúng định dạng. Định dạng hợp lệ: MM-dd-yyyy");
 
-        int status = HttpStatus.BAD_REQUEST.value();
-
-        return ResponseEntity.status(status).body(ResponseException.builder()
-                .status(status)
-                .message("Unknown error")
-                .exCause(exceptionCause)
-                .exClass(ex.getClass().getName())
-                .data(error)
-                .build());
-    }
 
     @ExceptionHandler(SaveToDBException.class)
     public ResponseEntity<ResponseException<?>> handleSaveDBExeption (SaveToDBException ex) {
@@ -122,12 +106,32 @@ public class GlobalExceptionHandler {
                 .build());
     }
 
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<?> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+
+        Throwable cause = ex.getCause();
+        String exceptionCause = (cause == null) ? null : cause.getClass().getName();
+        Map<String, String> error = new HashMap<>();
+        error.put("message", ex.getLocalizedMessage());
+
+        int status = HttpStatus.BAD_REQUEST.value();
+
+        return ResponseEntity.status(status).body(ResponseException.builder()
+                .status(status)
+                .message("Path variable data type mismatch")
+                .exCause(exceptionCause)
+                .exClass(ex.getClass().getName())
+                .data(error)
+                .build());
+
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ResponseException<?>> getExceptionHandler(Exception ex) {
         Throwable cause = ex.getCause();
         String exceptionCause = (cause == null) ? null : cause.getClass().getName();
         Map<String, String> error = new HashMap<>();
-        error.put("message", ex.getLocalizedMessage());
+        error.put("message", ex.getMessage());
 
         int status = HttpStatus.BAD_REQUEST.value();
 

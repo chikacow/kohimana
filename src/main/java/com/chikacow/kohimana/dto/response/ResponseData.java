@@ -18,9 +18,8 @@ import java.time.format.DateTimeFormatter;
 public class ResponseData<T> {
     private final int status;
     private final String message;
+    private final String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss"));
     private final T data;
-    private final String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-
 
 
 }

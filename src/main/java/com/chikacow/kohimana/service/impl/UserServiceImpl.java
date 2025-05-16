@@ -12,6 +12,7 @@ import com.chikacow.kohimana.repository.SearchRepository;
 import com.chikacow.kohimana.repository.UserRepository;
 import com.chikacow.kohimana.service.UserService;
 import com.chikacow.kohimana.util.enums.AccountStatus;
+import com.chikacow.kohimana.util.enums.Gender;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -64,6 +65,11 @@ public class UserServiceImpl implements UserService {
                 return j;
             }
         };
+    }
+
+    @Override
+    public User getUserById(Long id) {
+        return userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("user not found"));
     }
 
     /**
@@ -231,17 +237,17 @@ public class UserServiceImpl implements UserService {
     /**
      * A function for user to view their own info
      * This sensitively limit the amount of information from the system that the customer can view
-     * @param username
+     * @param id
      * @return
      */
     @Override
-    public UserResponseDTO getUserInfo(String username) {
-        if (!checkAuthorization(username)) {
+    public UserResponseDTO getUserInfo(Long id) {
+        if (!checkAuthorization(id)) {
             throw new HaveNoAccessToResourceException("Do not access other user's info");
         }
 
 
-        User retrivedUser =  userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("username not found"));
+        User retrivedUser =  getUserById(id);
         UserResponseDTO res = UserResponseDTO.builder()
                 .firstName(retrivedUser.getFirstName())
                 .lastName(retrivedUser.getLastName())
@@ -258,30 +264,32 @@ public class UserServiceImpl implements UserService {
 
     /**
      * for user to update their profiles but only general data
-     * @param username
+     * @param id
      * @param requestDTO
      * @return
      */
     @Override
-    public UserResponseDTO updateUserInfo(String username, UpdateUserRequestDTO requestDTO) {
+    public UserResponseDTO updateUserInfo(Long id, UpdateUserRequestDTO requestDTO) {
 
-        if (!checkAuthorization(username)) {
+        if (!checkAuthorization(id)) {
             throw new HaveNoAccessToResourceException("Do not access other user's info");
         }
 
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("username not found"));
+        String firstname_smooth = smooth(requestDTO.getFirstName());
+        String lastname_smooth = smooth(requestDTO.getLastName());
+        User user = getUserById(id);
 
         if (requestDTO.getFirstName() != null) {
-            user.setFirstName(requestDTO.getFirstName());
+            user.setFirstName(firstname_smooth);
         }
         if (requestDTO.getLastName() != null) {
-            user.setLastName(requestDTO.getLastName());
+            user.setLastName(lastname_smooth);
         }
         if (requestDTO.getEmail() != null) {
             user.setEmail(requestDTO.getEmail());
         }
         if (requestDTO.getGender() != null) {
-            user.setGender(requestDTO.getGender());
+            user.setGender(Gender.fromString(requestDTO.getGender()));
         }
         if (requestDTO.getDateOfBirth() != null) {
             user.setDateOfBirth(requestDTO.getDateOfBirth());
@@ -325,15 +333,21 @@ public class UserServiceImpl implements UserService {
 
     /**
      * To assure user A can't access user B's data
-     * @param username
+     * @param userId
      * @return
      */
-    private boolean checkAuthorization(String username) {
+    private boolean checkAuthorization(Long userId) {
+        String username = getUserById(userId).getUsername();
         if (SecurityContextHolder.getContext().getAuthentication().getName().equals(username)) {
             return true;
         }
         return false;
 
+    }
+
+
+    private String smooth(String input) {
+        return input.trim().replaceAll("\\s+", " ");
     }
 
 

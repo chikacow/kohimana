@@ -6,7 +6,7 @@ import jakarta.validation.ConstraintValidatorContext;
 
 import java.util.Arrays;
 
-public class GenderSubsetValidator implements ConstraintValidator<GenderSubset, Gender> {
+public class GenderSubsetValidator implements ConstraintValidator<GenderSubset, String> {
     private Gender[] genders;
 
     @Override
@@ -15,7 +15,18 @@ public class GenderSubsetValidator implements ConstraintValidator<GenderSubset, 
     }
 
     @Override
-    public boolean isValid(Gender value, ConstraintValidatorContext context) {
-        return value == null || Arrays.asList(genders).contains(value);
+    public boolean isValid(String s, ConstraintValidatorContext constraintValidatorContext) {
+        //return s == null || Arrays.asList(genders).contains(Gender.fromString(s));
+
+        for (Gender gender : Gender.values()) {
+            if (gender.name().equalsIgnoreCase(s)) {
+                return true;
+            }
+        }
+        return false;
+
+
     }
+
+
 }

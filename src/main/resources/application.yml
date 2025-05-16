@@ -13,9 +13,9 @@ spring:
   jpa:
     show-sql: true
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
   datasource:
-    url: jdbc:mysql://localhost:3306/kohimana_test
+    url: jdbc:mysql://localhost:3306/kohimana
     username: root
     password: mysqL2004@
     driver-class-name: com.mysql.cj.jdbc.Driver

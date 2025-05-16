@@ -9,6 +9,7 @@ import com.chikacow.kohimana.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
@@ -18,33 +19,34 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/user")
 @RequiredArgsConstructor
 @Validated
-@Slf4j
+@Slf4j(topic = "USER-CONTROLLER")
 public class UserController {
     private final UserService userService;
 
 
-    @PostMapping("/create-user")
-    public ResponseEntity<UserResponseDTO> createUser(@Valid @RequestBody UserRequestDTO userRequestDTO) {
+    /**
+     * ? luc con de username thi string long long string vo tu, chuyen cai thi moi loi ra loi ?
+     * @param id
+     * @return
+     */
 
-        //on next version
+    @GetMapping("/{id}")
+    public ResponseData<?> getUser(@PathVariable("id") Long id) {
 
-        return ResponseEntity.ok().body(null);
+        UserResponseDTO res = userService.getUserInfo(id);
+
+        return ResponseData.builder()
+                .data(res)
+                .message("Success")
+                .status(HttpStatus.OK.value())
+                .build();
     }
 
-    @GetMapping("/{username}")
-    public ResponseEntity<UserResponseDTO> getUser(@PathVariable String username) {
 
+    @PutMapping("/{id}")
+    public ResponseEntity<UserResponseDTO> updateUserInfo(@PathVariable Long id, @Valid @RequestBody UpdateUserRequestDTO requestDTO) {
 
-        UserResponseDTO res = userService.getUserInfo(username);
-
-        return ResponseEntity.ok().body(res);
-    }
-
-
-    @PutMapping("/{username}")
-    public ResponseEntity<UserResponseDTO> updateUserInfo(@PathVariable String username, @RequestBody UpdateUserRequestDTO requestDTO) {
-
-        UserResponseDTO res = userService.updateUserInfo(username, requestDTO);
+        UserResponseDTO res = userService.updateUserInfo(id, requestDTO);
 
         return ResponseEntity.ok().body(res);
     }

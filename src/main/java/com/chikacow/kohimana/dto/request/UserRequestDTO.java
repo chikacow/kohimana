@@ -40,20 +40,20 @@ public class UserRequestDTO implements Serializable {
     @PhoneNumber
     private String phone;
 
-    @NotNull(message = "birthday must not be null")
+    @NotNull(message = "Birthday must not be blank")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     @JsonFormat(pattern = "dd-MM-yyyy")
     private LocalDate dateOfBirth;
 
 
     @GenderSubset(anyOf = {MALE, FEMALE, OTHER})
-    private Gender gender;
+    private String gender;
 
 
     @Username
     private String username;
 
-    @Password
+    //@Password
     private String password;
 
     private List<String> roles;

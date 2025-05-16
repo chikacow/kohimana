@@ -10,6 +10,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Date;
 
@@ -21,20 +22,25 @@ import static com.chikacow.kohimana.util.enums.Gender.*;
 @AllArgsConstructor
 @RequiredArgsConstructor
 public class UpdateUserRequestDTO {
+    @NotBlank(message = "First name must not be blank")
     private String firstName;
 
+    @NotBlank(message = "Last name must not be blank")
     private String lastName;
 
+    @Email(message = "Must match email format")
     private String email;
 
     //@Pattern(regexp = "^\\d{10}$", message = "k: phone invalid format")
-    @PhoneNumber
+    @PhoneNumber(message = "Must match phone number format")
     private String phone;
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-    @JsonFormat(pattern = "MM-dd-yyyy")
+    @JsonFormat(pattern = "dd-MM-yyyy")
     private LocalDate dateOfBirth;
 
     @GenderSubset(anyOf = {MALE, FEMALE, OTHER})
-    private Gender gender;
+    private String gender;
+
+    //ko de Gender de exception dc xu ly o phan validation, not serialization
 }
