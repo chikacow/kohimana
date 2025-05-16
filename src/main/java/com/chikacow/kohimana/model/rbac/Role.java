@@ -5,9 +5,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import org.checkerframework.checker.units.qual.A;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -16,9 +15,11 @@ import java.util.Set;
 @Table(name = "tbl_role")
 @Getter
 @Setter
+@Builder
 @RequiredArgsConstructor
+@AllArgsConstructor
 public class Role extends AbstractEntity<Integer> {
-    @Column(name = "name")
+    @Column(name = "name", unique = true, nullable = false)
     private String name;
 
     @Column(name = "description")
@@ -30,4 +31,6 @@ public class Role extends AbstractEntity<Integer> {
 
     @OneToMany(mappedBy = "role")
     private Set<UserHasRole> roles = new HashSet<>();
+
+
 }

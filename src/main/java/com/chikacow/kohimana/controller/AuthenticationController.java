@@ -6,6 +6,7 @@ import com.chikacow.kohimana.dto.request.SignInRequest;
 import com.chikacow.kohimana.dto.request.UserRequestDTO;
 import com.chikacow.kohimana.dto.response.TokenResponse;
 import com.chikacow.kohimana.dto.response.UserResponseDTO;
+import com.chikacow.kohimana.exception.InvalidDataException;
 import com.chikacow.kohimana.service.AuthenticationService;
 import com.chikacow.kohimana.service.impl.AuthenticationServiceImpl;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,6 +21,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -29,11 +31,12 @@ public class AuthenticationController {
     private final AuthenticationServiceImpl authenticationService;
 
     @PostMapping("/sign-in")
-    public ResponseEntity<UserResponseDTO> createUser(@Valid @RequestBody UserRequestDTO userRequestDTO) {
+    public ResponseEntity<UserResponseDTO> register(@Valid @RequestBody UserRequestDTO userRequestDTO) {
 
         UserResponseDTO dto = authenticationService.registerUser(userRequestDTO);
-
         return ResponseEntity.ok().body(dto);
+
+
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")

@@ -4,6 +4,7 @@ import com.chikacow.kohimana.util.enums.Gender;
 import com.chikacow.kohimana.util.enums.Role;
 import com.chikacow.kohimana.validator.GenderSubset;
 import com.chikacow.kohimana.validator.PhoneNumber;
+import com.chikacow.kohimana.validator.Username;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -47,6 +48,7 @@ public class UserRequestDTO implements Serializable {
     private Gender gender;
 
     @NotNull
+    @Username
     private String username;
 
     @NotNull

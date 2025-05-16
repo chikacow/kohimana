@@ -5,6 +5,7 @@ import com.chikacow.kohimana.dto.request.SignInRequest;
 import com.chikacow.kohimana.dto.request.UserRequestDTO;
 import com.chikacow.kohimana.dto.response.TokenResponse;
 import com.chikacow.kohimana.dto.response.UserResponseDTO;
+import com.chikacow.kohimana.exception.DatabaseException;
 import com.chikacow.kohimana.exception.HaveNoAccessToResourceException;
 import com.chikacow.kohimana.exception.InvalidDataException;
 import com.chikacow.kohimana.exception.SaveToDBException;
@@ -212,6 +213,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             throw new InvalidDataException("Username already exists");
         }
 
+
+
         User newUser = User.builder()
                 .firstName(userRequestDTO.getFirstName())
                 .lastName(userRequestDTO.getLastName())
@@ -231,6 +234,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             throw new SaveToDBException("Error saving newly created user");
         }
         Role r = roleService.getRoleByName(com.chikacow.kohimana.util.enums.Role.convertToString(com.chikacow.kohimana.util.enums.Role.CUSTOMER));
+
+        if (r == null) {
+            throw new DatabaseException("Can't find role in database, potentially initialize problem");
+        }
+
         UserHasRole userRole = UserHasRole.builder()
                 .role(r)
                 .user(retrivedUser.get())
@@ -340,4 +348,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         return user;
     }
+
+    private boolean checkValidUsername(String input) {
+        return input != null && input.matches(".*\\s.*");
+    }
+
 }
