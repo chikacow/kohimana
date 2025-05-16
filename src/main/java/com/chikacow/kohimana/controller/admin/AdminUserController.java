@@ -2,6 +2,7 @@ package com.chikacow.kohimana.controller.admin;
 
 
 import com.chikacow.kohimana.dto.response.PageResponse;
+import com.chikacow.kohimana.dto.response.ResponseData;
 import com.chikacow.kohimana.dto.response.UserResponseDTO;
 import com.chikacow.kohimana.model.User;
 import com.chikacow.kohimana.service.UserService;
@@ -15,7 +16,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/admin/user")
@@ -26,15 +29,24 @@ public class AdminUserController {
 
     /**
      * In ver1, this can be treated as delete user
-     * @param username username of user
+     * @param id username of user
      * @return account status after applied change
      */
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
-    @PatchMapping("/{username}/change-status")
-    public ResponseEntity<String> changeUserAccountStatus(@PathVariable("username") String username) {
-        AccountStatus newStatus = userService.changeAccountStatus(username);
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @PatchMapping("/{id}/change-status")
+    public ResponseData<?> changeUserAccountStatus(@PathVariable("id") Long id) {
+        AccountStatus newStatus = userService.changeAccountStatus(id);
 
-        return ResponseEntity.ok(newStatus.getDescription());
+        Map<String, String> res = new HashMap<>();
+        res.put("userId", id.toString());
+        res.put("status", newStatus.getDescription());
+
+
+        return ResponseData.builder()
+                .data(res)
+                .message("Success")
+                .status(HttpStatus.OK.value())
+                .build();
     }
 
     /**
@@ -44,13 +56,18 @@ public class AdminUserController {
     @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
     @Operation(summary = "Get list of users per pageNo", description = "Send a request via this API to get user list by pageNo and pageSize")
     @GetMapping("/list")
-    public ResponseEntity<?> getAllUsers(@RequestParam(defaultValue = "0", required = false) int pageNo,
-                                                             @Min(5) @RequestParam(defaultValue = "20", required = false) int pageSize,
-                                                             @RequestParam String sortBy) {
+    public ResponseData<?> getAllUsers(@RequestParam(defaultValue = "0", required = false) int pageNo,
+                                       @RequestParam(required = true) int pageSize,
+                                       @RequestParam String sortBy) {
 
 
         PageResponse<?> users = userService.getAllUsers(pageNo, pageSize, sortBy);
-        return ResponseEntity.ok(users);
+
+        return ResponseData.builder()
+                .status(HttpStatus.OK.value())
+                .message("Success")
+                .data(users)
+                .build();
 
     }
 

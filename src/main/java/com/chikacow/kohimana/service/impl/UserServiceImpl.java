@@ -316,12 +316,12 @@ public class UserServiceImpl implements UserService {
     /**
      * De-activate and Activate user account
      * Basically banning user account but not deleting them
-     * @param username
+     * @param id
      * @return
      */
     @Override
-    public AccountStatus changeAccountStatus(String username) {
-        User user = userRepository.getByUsername(username).orElseThrow(() -> new UsernameNotFoundException("username not found"));
+    public AccountStatus changeAccountStatus(Long id) {
+        User user = getUserById(id);
 
         user.setIsActive(!user.getIsActive());
 

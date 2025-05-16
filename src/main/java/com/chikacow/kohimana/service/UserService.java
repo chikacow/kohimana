@@ -37,7 +37,7 @@ public interface UserService {
 
     public UserResponseDTO updateUserInfo(Long id, UpdateUserRequestDTO requestDTO);
 
-    public AccountStatus changeAccountStatus(String username);
+    public AccountStatus changeAccountStatus(Long id);
 
 
 

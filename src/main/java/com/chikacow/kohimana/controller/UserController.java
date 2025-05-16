@@ -44,10 +44,14 @@ public class UserController {
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserResponseDTO> updateUserInfo(@PathVariable Long id, @Valid @RequestBody UpdateUserRequestDTO requestDTO) {
+    public ResponseData<?> updateUserInfo(@PathVariable Long id, @Valid @RequestBody UpdateUserRequestDTO requestDTO) {
 
         UserResponseDTO res = userService.updateUserInfo(id, requestDTO);
 
-        return ResponseEntity.ok().body(res);
+        return ResponseData.builder()
+                .data(res)
+                .message("Success")
+                .status(HttpStatus.OK.value())
+                .build();
     }
 }

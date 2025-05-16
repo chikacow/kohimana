@@ -1,5 +1,6 @@
 package com.chikacow.kohimana.service.impl;
 
+import com.chikacow.kohimana.exception.ExpiredTokenException;
 import com.chikacow.kohimana.service.JwtService;
 import com.chikacow.kohimana.util.enums.TokenType;
 import com.chikacow.kohimana.util.helper.Converter;
@@ -74,6 +75,9 @@ public class JwtServiceImpl implements JwtService, Serializable {
     public boolean isValid(String token, TokenType tokenType, UserDetails userDetails) {
         final String username = extractUsername(token, tokenType);
 
+        if (isTokenExpired(token, tokenType)) {
+            throw new ExpiredTokenException("Token has expired");
+        }
         return username.equals(userDetails.getUsername()) && !isTokenExpired(token, tokenType);
     }
 
@@ -125,11 +129,13 @@ public class JwtServiceImpl implements JwtService, Serializable {
 
     }
 
-//    private Claims extractAllClaims(String token, TokenType tokenType) {
-//        return Jwts.parser().setSigningKey(getKey(tokenType)).build().parseClaimsJws(token).getBody();
-//
-//    }
-private Claims extractAllClaims(String token, TokenType tokenType) {
+    /**
+     * This automatically check for the expiration of jwt to throw ExpiredJwtException
+     * @param token
+     * @param tokenType
+     * @return
+     */
+    private Claims extractAllClaims(String token, TokenType tokenType) {
     return Jwts.parserBuilder()
             .setSigningKey(getKey(tokenType))
             .build()
@@ -137,7 +143,8 @@ private Claims extractAllClaims(String token, TokenType tokenType) {
             .getBody();
 }
 
-    private boolean isTokenExpired(String token, TokenType tokenType) {
+    @Override
+    public boolean isTokenExpired(String token, TokenType tokenType) {
         return extractExpiration(token, tokenType).before(new Date());
     }
 
