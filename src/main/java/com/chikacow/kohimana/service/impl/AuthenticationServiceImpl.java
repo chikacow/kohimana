@@ -213,11 +213,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             throw new InvalidDataException("Username already exists");
         }
 
-
+        String firstname_smooth = smooth(userRequestDTO.getFirstName());
+        String lastname_smooth = smooth(userRequestDTO.getFirstName());
 
         User newUser = User.builder()
-                .firstName(userRequestDTO.getFirstName())
-                .lastName(userRequestDTO.getLastName())
+                .firstName(firstname_smooth)
+                .lastName(lastname_smooth)
                 .email(userRequestDTO.getEmail())
                 .gender(userRequestDTO.getGender())
                 .dateOfBirth(userRequestDTO.getDateOfBirth())
@@ -351,6 +352,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     private boolean checkValidUsername(String input) {
         return input != null && input.matches(".*\\s.*");
+    }
+
+    private String smooth(String input) {
+        return input.trim().replaceAll("\\s+", " ");
     }
 
 }

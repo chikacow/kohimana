@@ -12,6 +12,7 @@ import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -32,7 +33,9 @@ public class UserResponseDTO implements Serializable {
 
     private String phoneNumber;
 
-    private Date dateOfBirth;
+
+    @JsonFormat(pattern = "dd-MM-yyyy")
+    private LocalDate dateOfBirth;
 
     private Gender gender;
 

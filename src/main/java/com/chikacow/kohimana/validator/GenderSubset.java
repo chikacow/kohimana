@@ -18,7 +18,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Constraint(validatedBy = GenderSubsetValidator.class)
 public @interface GenderSubset {
     Gender[] anyOf();
-    String message() default "must be any of {anyOf}";
+    String message() default "Must be any of: {anyOf}";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

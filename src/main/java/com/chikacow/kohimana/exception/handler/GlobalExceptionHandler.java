@@ -1,10 +1,16 @@
 package com.chikacow.kohimana.exception.handler;
 
 
+import com.chikacow.kohimana.dto.response.ResponseData;
+import com.chikacow.kohimana.dto.response.ResponseError;
+import com.chikacow.kohimana.dto.response.ResponseException;
 import com.chikacow.kohimana.exception.InvalidDataException;
 import com.chikacow.kohimana.exception.SaveToDBException;
+import org.simpleframework.xml.transform.InvalidFormatException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -15,8 +21,33 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ResponseException<?>> handleHttpMessageNotReadable(HttpMessageNotReadableException ex) {
+        Throwable cause = ex.getCause();
+        String exceptionCause = (cause == null) ? null : cause.getClass().getName();
+
+        Map<String, String> response = new HashMap<>();
+
+        if (cause instanceof com.fasterxml.jackson.databind.exc.InvalidFormatException) {
+            response.put("birthOfDate", "Invalid date format. Please use dd-MM-yyyy.");
+        } else {
+            response.put("birthOfDate", "Invalid request. Could not read JSON.");
+        }
+
+        int status = HttpStatus.BAD_REQUEST.value();
+
+        return ResponseEntity.status(status).body(ResponseException.builder()
+                .status(status)
+                .message("Invalid date format")
+                .exCause(exceptionCause)
+                .exClass(ex.getClass().getName())
+                .data(response)
+                .build());
+    }
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ResponseException<?>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        Throwable cause = ex.getCause();
+        String exceptionCause = (cause == null) ? null : cause.getClass().getName();
         Map<String, String> errors = new HashMap<>();
 
         ex.getBindingResult().getFieldErrors().forEach(error -> {
@@ -25,23 +56,88 @@ public class GlobalExceptionHandler {
             errors.put(fieldName, errorMessage);
         });
 
-        return ResponseEntity.badRequest().body(errors);
-    }
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<String> getExceptionHandler(Exception e) {
+        int status = HttpStatus.BAD_REQUEST.value();
 
-        return new ResponseEntity<>(e.getMessage() + "" + e.getClass(), HttpStatus.INTERNAL_SERVER_ERROR);
+        return ResponseEntity.status(status).body(ResponseException.builder()
+                .status(status)
+                .message("Invalid username format")
+                .exCause(exceptionCause)
+                .exClass(ex.getClass().getName())
+                .data(errors)
+                .build());
+    }
+
+
+    @ExceptionHandler(InvalidFormatException.class)
+    public ResponseEntity<ResponseException<?>> handleInvalidFormat(HttpMessageNotReadableException ex) {
+        Throwable cause = ex.getCause();
+        String exceptionCause = (cause == null) ? null : cause.getClass().getName();
+        Map<String, String> error = new HashMap<>();
+        error.put("dateOfBirth", "Ngày sinh không đúng định dạng. Định dạng hợp lệ: MM-dd-yyyy");
+
+        int status = HttpStatus.BAD_REQUEST.value();
+
+        return ResponseEntity.status(status).body(ResponseException.builder()
+                .status(status)
+                .message("Unknown error")
+                .exCause(exceptionCause)
+                .exClass(ex.getClass().getName())
+                .data(error)
+                .build());
     }
 
     @ExceptionHandler(SaveToDBException.class)
-    public ResponseEntity<String> handleSaveDBExeption (Exception e) {
+    public ResponseEntity<ResponseException<?>> handleSaveDBExeption (SaveToDBException ex) {
 
-        return new ResponseEntity<>(e.getMessage() + " " + e.getClass(), HttpStatus.INTERNAL_SERVER_ERROR);
+        Throwable cause = ex.getCause();
+        String exceptionCause = (cause == null) ? null : cause.getClass().getName();
+        Map<String, String> error = new HashMap<>();
+        error.put("message", ex.getLocalizedMessage());
+
+        int status = HttpStatus.BAD_REQUEST.value();
+
+        return ResponseEntity.status(status).body(ResponseException.builder()
+                .status(status)
+                .message("Error saving to database")
+                .exCause(exceptionCause)
+                .exClass(ex.getClass().getName())
+                .data(error)
+                .build());
     }
 
     @ExceptionHandler(InvalidDataException.class)
-    public ResponseEntity<String> handleInvalidDataException (Exception e) {
+    public ResponseEntity<ResponseException<?>> handleInvalidDataException (InvalidDataException ex) {
+        Throwable cause = ex.getCause();
+        String exceptionCause = (cause == null) ? null : cause.getClass().getName();
+        Map<String, String> error = new HashMap<>();
+        error.put("message", ex.getLocalizedMessage());
+        int status = HttpStatus.BAD_REQUEST.value();
 
-        return new ResponseEntity<>(e.getMessage() + " " + e.getClass(), HttpStatus.INTERNAL_SERVER_ERROR);
+        return ResponseEntity.status(status).body(ResponseException.builder()
+                .status(status)
+                .message("Invalid input")
+                .exCause(exceptionCause)
+                .exClass(ex.getClass().getName())
+                .data(error)
+                .build());
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ResponseException<?>> getExceptionHandler(Exception ex) {
+        Throwable cause = ex.getCause();
+        String exceptionCause = (cause == null) ? null : cause.getClass().getName();
+        Map<String, String> error = new HashMap<>();
+        error.put("message", ex.getLocalizedMessage());
+
+        int status = HttpStatus.BAD_REQUEST.value();
+
+        return ResponseEntity.status(status).body(ResponseException.builder()
+                .status(status)
+                .message("Unknown error")
+                .exCause(exceptionCause)
+                .exClass(ex.getClass().getName())
+                .data(error)
+                .build());
+
     }
 }

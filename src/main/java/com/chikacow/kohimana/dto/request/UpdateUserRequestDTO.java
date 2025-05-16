@@ -10,6 +10,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 import static com.chikacow.kohimana.util.enums.Gender.*;
@@ -32,7 +33,7 @@ public class UpdateUserRequestDTO {
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     @JsonFormat(pattern = "MM-dd-yyyy")
-    private Date dateOfBirth;
+    private LocalDate dateOfBirth;
 
     @GenderSubset(anyOf = {MALE, FEMALE, OTHER})
     private Gender gender;

@@ -3,6 +3,7 @@ package com.chikacow.kohimana.dto.request;
 import com.chikacow.kohimana.util.enums.Gender;
 import com.chikacow.kohimana.util.enums.Role;
 import com.chikacow.kohimana.validator.GenderSubset;
+import com.chikacow.kohimana.validator.Password;
 import com.chikacow.kohimana.validator.PhoneNumber;
 import com.chikacow.kohimana.validator.Username;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -13,6 +14,7 @@ import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -40,18 +42,18 @@ public class UserRequestDTO implements Serializable {
 
     @NotNull(message = "birthday must not be null")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-    @JsonFormat(pattern = "MM-dd-yyyy")
-    private Date dateOfBirth;
+    @JsonFormat(pattern = "dd-MM-yyyy")
+    private LocalDate dateOfBirth;
 
 
     @GenderSubset(anyOf = {MALE, FEMALE, OTHER})
     private Gender gender;
 
-    @NotNull
+
     @Username
     private String username;
 
-    @NotNull
+    @Password
     private String password;
 
     private List<String> roles;
