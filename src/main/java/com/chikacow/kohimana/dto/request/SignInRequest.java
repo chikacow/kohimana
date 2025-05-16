@@ -1,6 +1,8 @@
 package com.chikacow.kohimana.dto.request;
 
 import com.chikacow.kohimana.util.enums.Platform;
+import com.chikacow.kohimana.validator.Password;
+import com.chikacow.kohimana.validator.Username;
 import jakarta.annotation.Nonnull;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -13,12 +15,12 @@ import java.io.Serializable;
 @Setter
 public class SignInRequest implements Serializable {
 
-    @NotBlank(message = "missing username")
+    @Username
     private String username;
 
-    @NotBlank(message = "missing password")
+    //@Password
     private String password;
 
-    @NotNull(message = "platform must not be null")
+    //@NotNull(message = "platform must not be null")
     private Platform platform;
 }

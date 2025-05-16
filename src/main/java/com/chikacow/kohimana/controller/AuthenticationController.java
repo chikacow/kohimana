@@ -12,6 +12,7 @@ import com.chikacow.kohimana.service.impl.AuthenticationServiceImpl;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +27,7 @@ import org.springframework.web.server.ResponseStatusException;
 @RestController
 @RequestMapping("/api/v1/auth")
 @Validated
+@Slf4j(topic = "AUTHENTICATION-CONTROLLER")
 @RequiredArgsConstructor
 public class AuthenticationController {
     private final AuthenticationServiceImpl authenticationService;
@@ -49,19 +51,19 @@ public class AuthenticationController {
     }
 
     @PostMapping("/access-token")
-    public ResponseEntity<TokenResponse> login(@RequestBody SignInRequest signInRequest) {
+    public ResponseEntity<TokenResponse> login(@Valid @RequestBody SignInRequest signInRequest) {
 
        TokenResponse res = authenticationService.authenticate(signInRequest);
 
-        System.out.println("hi: " + SecurityContextHolder.getContext().getAuthentication().getName());
+        log.info("hi user: " + SecurityContextHolder.getContext().getAuthentication().getName());
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         if (auth != null && auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken)) {
-            // Real user is authenticated
-            System.out.println("Real");
+            log.info("USER AUTHENTICATED");
         } else {
             // Anonymous or unauthenticated
             System.out.println("Not real");
+            log.info("WARNING: USER IS NOT AUTHENTICATED, HACKER DETECTED");
         }
 
         return new ResponseEntity<>(res, HttpStatus.OK);

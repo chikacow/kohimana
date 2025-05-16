@@ -61,7 +61,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final UserHasRoleRepository userHasRoleRepository;
 
     public TokenResponse authenticate(SignInRequest request) {
-        System.out.println(request.getUsername() + " " + request.getPassword());
+        log.info(request.getUsername() + " " + request.getPassword());
+        log.info("User coming from platform: {}", request.getPlatform());
+        //core logic
         Authentication authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
 
         log.info("is_authenticated = {}", authenticate.isAuthenticated());
@@ -77,12 +79,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         newContext.setAuthentication(authentication);
         SecurityContextHolder.setContext(newContext);
 
-        ///
+        //
         String accessToken = jwtService.generateToken(user);
 
         String refreshToken = jwtService.generateRefreshToken(user);
 
-        //save to db for future management purpose
+        ///save to db for future management purpose
         tokenService.save(Token.builder()
                 .username(user.getUsername())
                 .accessToken(accessToken)
