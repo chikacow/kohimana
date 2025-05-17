@@ -143,8 +143,8 @@ public class JwtServiceImpl implements JwtService, Serializable {
             .getBody();
 }
 
-    @Override
-    public boolean isTokenExpired(String token, TokenType tokenType) {
+
+    private boolean isTokenExpired(String token, TokenType tokenType) {
         return extractExpiration(token, tokenType).before(new Date());
     }
 

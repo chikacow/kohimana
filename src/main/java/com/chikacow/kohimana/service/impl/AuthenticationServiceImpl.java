@@ -19,6 +19,7 @@ import com.chikacow.kohimana.service.*;
 import com.chikacow.kohimana.util.enums.Gender;
 import com.chikacow.kohimana.util.enums.TokenType;
 import com.chikacow.kohimana.util.helper.Separate;
+import com.chikacow.kohimana.util.helper.SmoothData;
 import io.micrometer.common.util.StringUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
@@ -39,6 +40,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+
+import static com.chikacow.kohimana.util.helper.SmoothData.smooth;
 
 @Service
 @RequiredArgsConstructor
@@ -216,8 +219,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             throw new InvalidDataException("Username already exists");
         }
 
-        String firstname_smooth = smooth(userRequestDTO.getFirstName());
-        String lastname_smooth = smooth(userRequestDTO.getFirstName());
+        String firstname_smooth = SmoothData.smooth(userRequestDTO.getFirstName());
+        String lastname_smooth = SmoothData.smooth(userRequestDTO.getFirstName());
 
         User newUser = User.builder()
                 .firstName(firstname_smooth)
@@ -357,8 +360,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return input != null && input.matches(".*\\s.*");
     }
 
-    private String smooth(String input) {
-        return input.trim().replaceAll("\\s+", " ");
-    }
+
 
 }

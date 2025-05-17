@@ -14,5 +14,5 @@ public interface JwtService {
     public boolean isValid(String token, TokenType tokenType, UserDetails user);
 
     public String generateResetToken(UserDetails user);
-    public boolean isTokenExpired(String token, TokenType tokenType);
+
 }

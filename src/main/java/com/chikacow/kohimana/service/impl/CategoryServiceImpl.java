@@ -8,9 +8,14 @@ import com.chikacow.kohimana.model.Product;
 import com.chikacow.kohimana.repository.CategoryRepository;
 import com.chikacow.kohimana.repository.ProductRepository;
 import com.chikacow.kohimana.service.CategoryService;
+import com.chikacow.kohimana.util.enums.CategoryType;
+import com.chikacow.kohimana.util.helper.SmoothData;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +26,9 @@ import java.util.List;
 public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
     private final ProductRepository productRepository;
+
+    @PersistenceContext
+    private final EntityManager entityManager;
 
 
     @Override
@@ -35,7 +43,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryResponseDTO createCategory(CategoryRequestDTO requestDTO) {
-
+        String smooth_name = SmoothData.smooth(requestDTO.getName());
         List<Product> products = new ArrayList<>();
         if (requestDTO.getProductCodes() != null) {
             List<String> productCodes = requestDTO.getProductCodes();
@@ -49,9 +57,10 @@ public class CategoryServiceImpl implements CategoryService {
 
         Category category = Category.builder()
                 .code(requestDTO.getCategoryID())
-                .name(requestDTO.getName())
-                .type(requestDTO.getType())
+                .name(smooth_name)
+                .type(CategoryType.fromString(requestDTO.getType()))
                 .productList(products)
+                .isActive(true)
                 .build();
 
         Category newCate = categoryRepository.save(category);
@@ -69,9 +78,9 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public CategoryResponseDTO getCategoryInfo(String categoryID) {
+    public CategoryResponseDTO getCategoryInfo(Long id) {
 
-        Category retrived = categoryRepository.findByCode(categoryID).orElseThrow(() -> new ResourceNotFoundException("category not found"));
+        Category retrived = getCategoryById(id);
 
         CategoryResponseDTO res = CategoryResponseDTO.builder()
                 .categoryID(retrived.getCode())
@@ -87,23 +96,28 @@ public class CategoryServiceImpl implements CategoryService {
      *Must satisfy that all the update data, including existed product code, to perform updating
      */
     @Override
-    public CategoryResponseDTO updateCategoryInfo(String categoryID, CategoryRequestDTO requestDTO) {
+    public CategoryResponseDTO updateCategoryInfo(Long id, CategoryRequestDTO requestDTO) {
 
-        Category retrived = categoryRepository.findByCode(categoryID).orElseThrow(() -> new ResourceNotFoundException("category not found"));
+        Category retrived = getCategoryById(id);
 
+        String name_smooth = SmoothData.smooth(requestDTO.getName());
         if (requestDTO.getCategoryID() != null) {
             retrived.setCode(requestDTO.getCategoryID());
         }
         if (requestDTO.getName() != null) {
-            retrived.setName(requestDTO.getName());
+            retrived.setName(name_smooth);
         }
         if (requestDTO.getType() != null) {
-            retrived.setType(requestDTO.getType());
+            retrived.setType(CategoryType.fromString(requestDTO.getType()));
         }
-        if (requestDTO.getProductCodes() != null) {
-            log.info("must include all product code before to avoid data lost");
-            retrived.setProductList(productCode2List(requestDTO.getProductCodes()));
-        }
+
+//        if (requestDTO.getProductCodes() != null) {
+//            log.info("must include all product code before to avoid data lost");
+//            retrived.getProductList().remove(0);
+//            //phai save thi orphan ms hoat dong, chung to hibernate khong the anh xa live
+//            //categoryRepository.save(retrived);
+//            retrived.setProductList(productCode2List(requestDTO.getProductCodes()));
+//        }
 
         Category saved = categoryRepository.save(retrived);
 
@@ -118,12 +132,17 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public String deleteCategory(String categoryID) {
-        Category retrived = categoryRepository.findByCode(categoryID).orElseThrow(() -> new ResourceNotFoundException("category not found, which means you dont have to delete it"));
+    @Transactional
+    public String changeStatus(Long id) {
+        Category retrived = getCategoryById(id);
+        //entityManager.detach(retrived);
 
-        categoryRepository.delete(retrived);
+        retrived.setActive(!retrived.isActive());
 
-        return retrived.getCode();
+        //entityManager.merge(retrived);
+        //categoryRepository.save(retrived);
+
+        return retrived.isActive() ? "active" : "inactive";
     }
 
 

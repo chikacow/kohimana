@@ -49,7 +49,11 @@ public class JwtFilter extends OncePerRequestFilter {
 //                filterChain.doFilter(request, response);
 //            }
 
-            filterChain.doFilter(request, response);
+            //filterChain.doFilter(request, response);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().write("{\"message\": \"Require token for authentication\", \"status\": 401}");
             return;
         }
         System.out.println("continue-------------------");

@@ -32,4 +32,8 @@ public class Category extends AbstractEntity<Long> {
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Product> productList;
 
+    @Column(name = "is_active")
+    private boolean isActive;
+
+
 }

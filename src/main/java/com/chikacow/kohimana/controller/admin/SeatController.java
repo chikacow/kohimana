@@ -1,11 +1,16 @@
 package com.chikacow.kohimana.controller.admin;
 
+import com.chikacow.kohimana.dto.response.ResponseData;
 import com.chikacow.kohimana.model.Seat;
 import com.chikacow.kohimana.service.SeatService;
 import com.chikacow.kohimana.util.enums.TableStatus;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,6 +18,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/admin/seats")
 @RequiredArgsConstructor
+@Validated
+@Slf4j(topic = "SEAT-CONTROLLER")
 public class SeatController {
 
     private final SeatService seatService;
@@ -33,8 +40,15 @@ public class SeatController {
      */
 
     @GetMapping("/{id}")
-    public ResponseEntity<Seat> getSeatById(@PathVariable Long id) {
-        return ResponseEntity.ok(seatService.getSeatById(id));
+    public ResponseData<?> getSeatById(@PathVariable Long id) {
+        var res = seatService.getSeatInfo(id);
+
+        return ResponseData.builder()
+                .status(HttpStatus.OK.value())
+                .message("Success")
+                .data(res)
+                .build();
+
     }
 
     /**
@@ -54,8 +68,15 @@ public class SeatController {
      * @return
      */
     @GetMapping("/status/{status}")
-    public ResponseEntity<List<Seat>> getSeatsByStatus(@PathVariable TableStatus status) {
-        return ResponseEntity.ok(seatService.getSeatsByStatus(status));
+    public ResponseData<?> getSeatsByStatus(@PathVariable String status) {
+        var res = seatService.getSeatsByStatus(status);
+
+        return ResponseData.builder()
+                .status(HttpStatus.OK.value())
+                .message("Success")
+                .data(res)
+                .build();
+
     }
 
     /**
@@ -64,20 +85,19 @@ public class SeatController {
      *     "description": "Bàn số 1 khu vực A",
      *     "status": "AVAILABLE"
      *   }
-     * @param seat
+     * @param requestDTO
      * @return
      */
     @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
     @PostMapping("/create")
-    public ResponseEntity<Seat> createSeat(@RequestBody Seat seat) {
-        Seat createdSeat = seatService.createSeat(seat);
-//        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
-//                .path("/{id}")
-//                .buildAndExpand(createdSeat.getId())
-//                .toUri();
-//        return ResponseEntity.created(location).body(createdSeat);
+    public ResponseData<?> createSeat(@Valid @RequestBody Seat.SeatRequestDTO requestDTO) {
+        Seat.SeatResponseDTO res = seatService.createSeat(requestDTO);
 
-        return ResponseEntity.ok(createdSeat);
+        return ResponseData.builder()
+                .status(HttpStatus.OK.value())
+                .message("Success")
+                .data(res)
+                .build();
     }
 
 
@@ -93,8 +113,15 @@ public class SeatController {
      */
     @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
     @PutMapping("/{id}")
-    public ResponseEntity<Seat> updateSeat(@PathVariable Long id, @RequestBody Seat seatDetails) {
-        return ResponseEntity.ok(seatService.updateSeat(id, seatDetails));
+    public ResponseData<?> updateSeat(@PathVariable Long id, @Valid @RequestBody Seat.SeatRequestDTO seatDetails) {
+        var res = seatService.updateSeat(id, seatDetails);
+
+        return ResponseData.builder()
+                .status(HttpStatus.OK.value())
+                .message("Success")
+                .data(res)
+                .build();
+
     }
 
     /**
@@ -118,9 +145,13 @@ public class SeatController {
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
     @PostMapping("/createBatch")
-    public ResponseEntity<List<Seat>> createBatchSeat(@RequestBody List<Seat> seat) {
-        List<Seat> createdSeat = seatService.createBatchSeat(seat);
+    public ResponseData<?> createBatchSeat(@Valid @RequestBody List<Seat.SeatRequestDTO> requestDTOS) {
+        List<Seat.SeatResponseDTO> res = seatService.createBatchSeat(requestDTOS);
 
-        return ResponseEntity.ok(createdSeat);
+        return ResponseData.builder()
+                .status(HttpStatus.OK.value())
+                .message("Success")
+                .data(res)
+                .build();
     }
 }

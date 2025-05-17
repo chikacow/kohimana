@@ -13,6 +13,7 @@ import com.chikacow.kohimana.repository.UserRepository;
 import com.chikacow.kohimana.service.UserService;
 import com.chikacow.kohimana.util.enums.AccountStatus;
 import com.chikacow.kohimana.util.enums.Gender;
+import com.chikacow.kohimana.util.helper.SmoothData;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -33,6 +34,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.chikacow.kohimana.util.AppConst.SORT_BY;
+import static com.chikacow.kohimana.util.helper.SmoothData.smooth;
 
 @Service
 @Slf4j
@@ -214,13 +216,13 @@ public class UserServiceImpl implements UserService {
      *
      * @param pageNo
      * @param pageSize
-     * @param sortBy
+
      * @param search
      * @return
      */
     @Override
-    public PageResponse<?> getAllUsersWithSortByMultipleColumnsAndSearch(int pageNo, int pageSize, String sortBy, String search) {
-        return searchRepository.getAllUsersWithSortByMultipleColumnsAndSearch(pageNo, pageSize, sortBy, search);
+    public PageResponse<?> getAllUsersWithSearch(int pageNo, int pageSize, String search) {
+        return searchRepository.getAllUsersWithSearch(pageNo, pageSize, search);
     }
 
     @Override
@@ -275,8 +277,8 @@ public class UserServiceImpl implements UserService {
             throw new HaveNoAccessToResourceException("Do not access other user's info");
         }
 
-        String firstname_smooth = smooth(requestDTO.getFirstName());
-        String lastname_smooth = smooth(requestDTO.getLastName());
+        String firstname_smooth = SmoothData.smooth(requestDTO.getFirstName());
+        String lastname_smooth = SmoothData.smooth(requestDTO.getLastName());
         User user = getUserById(id);
 
         if (requestDTO.getFirstName() != null) {
@@ -346,9 +348,7 @@ public class UserServiceImpl implements UserService {
     }
 
 
-    private String smooth(String input) {
-        return input.trim().replaceAll("\\s+", " ");
-    }
+
 
 
 }

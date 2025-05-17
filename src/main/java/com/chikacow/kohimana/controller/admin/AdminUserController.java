@@ -22,7 +22,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/admin/user")
-@Slf4j
+@Slf4j(topic = "ADMIN-USER-CONTROLLER")
 @RequiredArgsConstructor
 public class AdminUserController {
     private final UserService userService;
@@ -61,36 +61,44 @@ public class AdminUserController {
                                        @RequestParam String sortBy) {
 
 
-        PageResponse<?> users = userService.getAllUsers(pageNo, pageSize, sortBy);
+        PageResponse<?> res = userService.getAllUsers(pageNo, pageSize, sortBy);
 
         return ResponseData.builder()
                 .status(HttpStatus.OK.value())
                 .message("Success")
-                .data(users)
+                .data(res)
                 .build();
 
     }
 
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
-    @Operation(summary = "Get list of users with sort by multiple columns", description = "Send a request via this API to get user list by pageNo, pageSize and sort by multiple column")
     @GetMapping("/list-with-sort-by-multiple-columns")
-    public ResponseEntity<?> getAllUsersWithSortByMultipleColumns(@RequestParam(defaultValue = "0", required = false) int pageNo,
+    public ResponseData<?> getAllUsersWithSortByMultipleColumns(@RequestParam(defaultValue = "0", required = false) int pageNo,
                                                                 @RequestParam(defaultValue = "20", required = false) int pageSize,
                                                                 @RequestParam(required = false) String... sorts) {
-        log.info("Request get all of users with sort by multiple columns");
-        return ResponseEntity.ok(userService.getAllUsersWithSortByMultipleColumns(pageNo, pageSize, sorts));
+
+        PageResponse<?> res  = userService.getAllUsersWithSortByMultipleColumns(pageNo, pageSize, sorts);
+        return ResponseData.builder()
+                .status(HttpStatus.OK.value())
+                .message("Success")
+                .data(res)
+                .build();
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
-    @Operation(summary = "Get list of users with sort by multiple columns", description = "Send a request via this API to get user list by pageNo, pageSize and sort by multiple column")
-    @GetMapping("/list-with-sort-by-multiple-columns-search")
-    public ResponseEntity<?> getAllUsersWithSortByMultipleColumnsAndSearch(@RequestParam(defaultValue = "0", required = false) int pageNo,
+    @GetMapping("/list-with-search")
+    public ResponseData<?> getAllUsersWithSortByMultipleColumnsAndSearch(@RequestParam(defaultValue = "0", required = false) int pageNo,
                                                                   @RequestParam(defaultValue = "20", required = false) int pageSize,
-                                                                  @RequestParam(required = false) String sortBy,
                                                                   @RequestParam(required = false) String search) {
-        log.info("Request get all of users with sort by multiple columns");
-        return ResponseEntity.ok(userService.getAllUsersWithSortByMultipleColumnsAndSearch(pageNo, pageSize, sortBy, search));
+
+
+        PageResponse<?> res = userService.getAllUsersWithSearch(pageNo, pageSize, search);
+        return ResponseData.builder()
+                .status(HttpStatus.OK.value())
+                .message("Success")
+                .data(res)
+                .build();
     }
 
 

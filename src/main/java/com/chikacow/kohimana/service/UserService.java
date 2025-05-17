@@ -27,7 +27,7 @@ public interface UserService {
 
     public PageResponse<?> getAllUsersWithSortByMultipleColumns(int pageNo, int pageSize, String... sorts);
 
-    public PageResponse<?> getAllUsersWithSortByMultipleColumnsAndSearch(int pageNo, int pageSize, String sortBy, String search);
+    public PageResponse<?> getAllUsersWithSearch(int pageNo, int pageSize, String search);
 
     public User getUserByUsernameAndRole(String username, Integer roleID);
 

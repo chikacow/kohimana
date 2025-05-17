@@ -2,15 +2,20 @@ package com.chikacow.kohimana.controller.admin;
 
 import com.chikacow.kohimana.dto.request.CategoryRequestDTO;
 import com.chikacow.kohimana.dto.response.CategoryResponseDTO;
+import com.chikacow.kohimana.dto.response.ResponseData;
 import com.chikacow.kohimana.service.CategoryService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/admin/category")
@@ -22,11 +27,15 @@ public class AdminCategoryController {
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
     @PostMapping("/create")
-    public ResponseEntity<CategoryResponseDTO> createNewCategory(@RequestBody CategoryRequestDTO requestDTO) {
+    public ResponseData<?> createNewCategory(@Valid @RequestBody CategoryRequestDTO requestDTO) {
 
         CategoryResponseDTO res = categoryService.createCategory(requestDTO);
 
-        return ResponseEntity.ok(res);
+        return ResponseData.builder()
+                .status(HttpStatus.OK.value())
+                .message("Success")
+                .data(res)
+                .build();
     }
 
     /**
@@ -38,27 +47,49 @@ public class AdminCategoryController {
         return null;
     }
 
-    @GetMapping("/{categoryID}")
-    public ResponseEntity<CategoryResponseDTO> getCategoryInfo(@PathVariable("categoryID") String categoryID) {
+    @GetMapping("/{id}")
+    public ResponseData<?> getCategoryInfo(@PathVariable("id") Long id) {
 
-        CategoryResponseDTO res = categoryService.getCategoryInfo(categoryID);
+        CategoryResponseDTO res = categoryService.getCategoryInfo(id);
 
-        return ResponseEntity.ok(res);
+        return ResponseData.builder()
+                .status(HttpStatus.OK.value())
+                .message("Success")
+                .data(res)
+                .build();
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
-    @PutMapping("/{categoryID}")
-    public ResponseEntity<CategoryResponseDTO> updateCategoryInfo(@PathVariable("categoryID") String categoryID, @RequestBody CategoryRequestDTO requestDTO) {
+    @PutMapping("/{id}")
+    public ResponseData<?> updateCategoryInfo(@PathVariable("id") Long id, @Valid @RequestBody CategoryRequestDTO requestDTO) {
 
-        CategoryResponseDTO res = categoryService.updateCategoryInfo(categoryID, requestDTO);
+        CategoryResponseDTO res = categoryService.updateCategoryInfo(id, requestDTO);
 
-        return ResponseEntity.ok(res);
+        return ResponseData.builder()
+                .status(HttpStatus.OK.value())
+                .message("Success")
+                .data(res)
+                .build();
     }
 
+    /**
+     * Use to hide or display category, can work as delete category
+     * @param id
+     * @return
+     */
     @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
-    @DeleteMapping("/{categoryID}")
-    public ResponseEntity<String> deleteCategory(@PathVariable("categoryID") String categoryID) {
-        String cateId = categoryService.deleteCategory(categoryID);
-        return ResponseEntity.ok(cateId);
+    @PatchMapping("/{id}")
+    public ResponseData<?> changeCategoryStatus(@PathVariable("id") Long id) {
+        String status = categoryService.changeStatus(id);
+        Map<String, String> res = new HashMap<>();
+        res.put("status", status);
+        res.put("cate_id", "id");
+
+
+        return ResponseData.builder()
+                .status(HttpStatus.OK.value())
+                .message("Success")
+                .data(res)
+                .build();
     }
 }

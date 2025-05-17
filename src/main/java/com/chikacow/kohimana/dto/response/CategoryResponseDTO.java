@@ -20,7 +20,7 @@ public class CategoryResponseDTO {
 
     private String name;
 
-    @Enumerated(EnumType.STRING)
+
     private CategoryType type;
 
     private List<String> productCodes;

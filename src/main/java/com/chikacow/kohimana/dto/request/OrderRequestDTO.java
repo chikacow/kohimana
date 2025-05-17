@@ -12,8 +12,8 @@ import java.util.List;
 @AllArgsConstructor
 @RequiredArgsConstructor
 public class OrderRequestDTO {
-    @NotNull(message = "seat id")
-    private Long seatID;
+
+    private Long seatID = 0L;
 
     @NotEmpty(message = "must include some order items")
     private List<OrderItemRequestDTO> items;
