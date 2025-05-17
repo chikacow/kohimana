@@ -12,6 +12,8 @@ import com.chikacow.kohimana.repository.ProductRepository;
 import com.chikacow.kohimana.service.CategoryService;
 import com.chikacow.kohimana.service.FileService;
 import com.chikacow.kohimana.service.ProductService;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,8 +38,10 @@ import static com.chikacow.kohimana.util.AppConst.SORT_BY;
 public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final CategoryService categoryService;
-
     private final FileService fileService;
+
+    @PersistenceContext
+    private final EntityManager entityManager;
 
 
     /**
@@ -51,10 +55,12 @@ public class ProductServiceImpl implements ProductService {
     public ProductResponseDTO createProduct(ProductRequestDTO productRequestDTO) {
 
         Category category = new Category();
+
         if (productRequestDTO.getCateCode() != null) {
             category = categoryService.getCategoryByCode(productRequestDTO.getCateCode());
         }
 
+        //handle image upload
         String cloudUrl = resolveImageUrl(productRequestDTO.getLocalImageUrl());
 
         Product newProduct = Product.builder()
@@ -66,18 +72,21 @@ public class ProductServiceImpl implements ProductService {
                 .category(category)
                 .build();
 
-        Product savedProduct = productRepository.save(newProduct);
+        //productRepository.save(newProduct);
+        //với persist thì kết quả ra bình thường, ánh xạ từ db lên vô tư, như trường hợp create seat.
+        //với merge thì y hệt cái update, chắc chắn vấn đề nằm ở đây, nằm ở sự khác biệt giữa merge và persist, giữa create và update
+        entityManager.persist(newProduct);
 
-        ProductResponseDTO res = ProductResponseDTO.builder()
-                .code(savedProduct.getCode())
-                .name(savedProduct.getName())
-                .description(savedProduct.getDescription())
-                .price(savedProduct.getPrice())
-                .imageUrl(savedProduct.getImageUrl())
-                .categoryID(savedProduct.getCategory() != null ? savedProduct.getCategory().getCode() : "none")
+        return ProductResponseDTO.builder()
+                .code(newProduct.getCode())
+                .name(newProduct.getName())
+                .description(newProduct.getDescription())
+                .price(newProduct.getPrice())
+                .imageUrl(newProduct.getImageUrl())
+                .categoryID(newProduct.getCategory().getCode())
                 .build();
 
-        return res;
+
     }
 
     /**
@@ -87,7 +96,7 @@ public class ProductServiceImpl implements ProductService {
      */
     @Override
     public ProductResponseDTO getProductInfo(Long id) {
-        Product retrived = productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("product not found"));
+        Product retrived = getProductById(id);
 
         ProductResponseDTO res = ProductResponseDTO.builder()
                 .code(retrived.getCode())
@@ -109,39 +118,43 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional
     public ProductResponseDTO updateProductInfo(Long id, ProductRequestDTO productRequestDTO) {
-        Product product = productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("product not found"));
+        Product retrived = getProductById(id);
 
         if (productRequestDTO.getCode() != null) {
-            product.setCode(productRequestDTO.getCode());
+            retrived.setCode(productRequestDTO.getCode());
         }
         if (productRequestDTO.getName() != null) {
-            product.setName(productRequestDTO.getName());
+            retrived.setName(productRequestDTO.getName());
         }
         if (productRequestDTO.getDescription() != null) {
-            product.setDescription(productRequestDTO.getDescription());
+            retrived.setDescription(productRequestDTO.getDescription());
         }
         if (productRequestDTO.getPrice().longValue() != 0) {
-            product.setPrice(productRequestDTO.getPrice());
+            retrived.setPrice(productRequestDTO.getPrice());
         }
         if (productRequestDTO.getLocalImageUrl() != null && !resolveImageUrl(productRequestDTO.getLocalImageUrl()).equals("not found") ) {
-            product.setImageUrl(resolveImageUrl(productRequestDTO.getLocalImageUrl()));
+            retrived.setImageUrl(resolveImageUrl(productRequestDTO.getLocalImageUrl()));
         }
         if (productRequestDTO.getCateCode() != null) {
-            product.setCategory(categoryService.getCategoryByCode(productRequestDTO.getCateCode()));
+            retrived.setCategory(categoryService.getCategoryByCode(productRequestDTO.getCateCode()));
         }
 
-        Product savedProduct = productRepository.save(product);
+        /**
+         * bug flush()
+         */
+        productRepository.save(retrived);
 
         ProductResponseDTO res = ProductResponseDTO.builder()
-                .code(savedProduct.getCode())
-                .name(savedProduct.getName())
-                .description(savedProduct.getDescription())
-                .price(savedProduct.getPrice())
-                .imageUrl(savedProduct.getImageUrl())
-                .categoryID(savedProduct.getCategory() != null ? savedProduct.getCategory().getCode() : "none")
+                .code(retrived.getCode())
+                .name(retrived.getName())
+                .description(retrived.getDescription())
+                .price(retrived.getPrice())
+                .imageUrl(retrived.getImageUrl())
+                .categoryID(retrived.getCategory().getCode())
                 .build();
         return res;
     }
+
 
     /**
      * Delete product from the database. The file will be deleted anyway
@@ -149,10 +162,11 @@ public class ProductServiceImpl implements ProductService {
      * @return
      */
     @Override
-    public Long deleteProduct(Long id) {
-        Product product = productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("product not found"));
-        productRepository.delete(product);
-        return product.getId();
+    public String changeStatus(Long id) {
+        Product product = getProductById(id);
+        product.setActive(!product.isActive());
+        productRepository.save(product);
+        return product.isActive() ? "active" : "inactive";
     }
 
     /**

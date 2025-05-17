@@ -2,12 +2,15 @@ package com.chikacow.kohimana.controller.admin;
 
 import com.chikacow.kohimana.dto.request.ProductRequestDTO;
 import com.chikacow.kohimana.dto.response.ProductResponseDTO;
+import com.chikacow.kohimana.dto.response.ResponseData;
 import com.chikacow.kohimana.service.CategoryService;
 import com.chikacow.kohimana.service.FileService;
 import com.chikacow.kohimana.service.MinioService;
 import com.chikacow.kohimana.service.ProductService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -15,7 +18,9 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/admin/product")
@@ -28,10 +33,14 @@ public class AdminProductController {
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
     @PostMapping("/create")
-    public ResponseEntity<ProductResponseDTO> createNewProduct(@RequestBody ProductRequestDTO productRequestDTO) {
+    public ResponseData<?> createNewProduct(@Valid @RequestBody ProductRequestDTO productRequestDTO) {
         ProductResponseDTO res = productService.createProduct(productRequestDTO);
 
-        return ResponseEntity.ok(res);
+        return ResponseData.builder()
+                .status(HttpStatus.OK.value())
+                .message("Success")
+                .data(res)
+                .build();
     }
 
 //    @PostMapping("/create")
@@ -45,20 +54,32 @@ public class AdminProductController {
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
     @PutMapping("/{productId}")
-    public ResponseEntity<ProductResponseDTO> updateProduct(@PathVariable Long productId, @RequestBody ProductRequestDTO productRequestDTO) {
+    public ResponseData<?> updateProduct(@PathVariable Long productId, @Valid @RequestBody ProductRequestDTO productRequestDTO) {
 
         ProductResponseDTO res = productService.updateProductInfo(productId, productRequestDTO);
 
-        return ResponseEntity.ok(res);
+        return ResponseData.builder()
+                .status(HttpStatus.OK.value())
+                .message("Success")
+                .data(res)
+                .build();
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
     @DeleteMapping("/{productId}")
-    public ResponseEntity<Long> deleteProduct(@PathVariable Long productId) {
+    public ResponseData<?> changeStatus(@PathVariable Long productId) {
 
-        Long productID = productService.deleteProduct(productId);
+        String isR = productService.changeStatus(productId);
+        Map<String, String> res = new HashMap<>();
+        res.put("status", isR);
+        res.put("prod_id", String.valueOf(productId));
 
-        return ResponseEntity.ok(productID);
+
+        return ResponseData.builder()
+                .status(HttpStatus.OK.value())
+                .message("Success")
+                .data(res)
+                .build();
     }
 
 

@@ -17,18 +17,18 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @RequiredArgsConstructor
 public class ProductRequestDTO {
-    @NotBlank(message = "must include product code")
+    @NotBlank(message = "Must include product code")
     private String code;
 
-    @NotBlank(message = "must include product name")
+    @NotBlank(message = "Must include product name")
     private String name;
 
-    @Min(value = 0, message = "default price will be 0")
+    @Min(value = 0, message = "Default price will be 0")
     private BigDecimal price;
 
     private String description;
 
-    @NotBlank(message = "must include category code")
+    @NotBlank(message = "Must include category code")
     private String cateCode;
 
     private String localImageUrl;

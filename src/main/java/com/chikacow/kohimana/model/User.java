@@ -51,6 +51,9 @@ public class User extends AbstractEntity<Long> implements Serializable, UserDeta
     @Column(name = "phone_number")
     private String phoneNumber;
 
+    /**
+     * bug
+     */
     @Column(name = "is_active")
     private Boolean isActive;
 

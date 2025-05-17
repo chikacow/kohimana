@@ -13,7 +13,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/admin/seats")
@@ -132,15 +134,29 @@ public class SeatController {
      */
     @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
     @PatchMapping("/{id}/status")
-    public ResponseEntity<Seat> updateSeatStatus(@PathVariable Long id, @RequestParam TableStatus status) {
-        return ResponseEntity.ok(seatService.updateSeatStatus(id, status));
+    public ResponseData<?> updateSeatStatus(@PathVariable Long id, @RequestParam String status) {
+        var res = seatService.updateSeatStatus(id, status);
+
+        return ResponseData.builder()
+                .status(HttpStatus.OK.value())
+                .message("Success")
+                .data(res)
+                .build();
+
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteSeat(@PathVariable Long id) {
-        seatService.deleteSeat(id);
-        return ResponseEntity.noContent().build();
+    public ResponseData<?> deleteSeat(@PathVariable Long id) {
+        String status = seatService.deleteSeat(id);
+        Map<String, String> res = new HashMap<>();
+        res.put("seat_id", String.valueOf(id));
+        res.put("status", status);
+        return ResponseData.builder()
+                .status(HttpStatus.OK.value())
+                .message("Success")
+                .data(res)
+                .build();
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")

@@ -33,9 +33,28 @@ public class Product extends AbstractEntity<Long> {
     //@OneToOne(cascade = CascadeType.REMOVE)
     private String imageUrl;
 
+    @Column(name = "is_active", columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private boolean isActive;
+
     @ManyToOne
     @JoinColumn(name = "cate_id", referencedColumnName = "id")
     private Category category;
 
+    @PrePersist
+    private void prePersist() {
+
+        this.code = this.code.trim().replaceAll("\\s+", "");;
+        this.name = this.name.trim().replaceAll("\\s+", " ");;
+        this.description = this.description.trim().replaceAll("\\s+", " ");;
+
+    }
+
+    @PreUpdate
+    private void preUpdate() {
+        this.code = this.code.trim().replaceAll("\\s+", "");;
+        this.name = this.name.trim().replaceAll("\\s+", " ");;
+        this.description = this.description.trim().replaceAll("\\s+", " ");;
+
+    }
 
 }

@@ -14,7 +14,7 @@ public interface ProductService {
 
     public ProductResponseDTO updateProductInfo(Long id, ProductRequestDTO productRequestDTO);
 
-    public Long deleteProduct(Long id);
+    public String changeStatus(Long id);
 
     public Product getProductById(Long id);
 

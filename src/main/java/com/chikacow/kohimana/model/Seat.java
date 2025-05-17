@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Getter
 @Setter
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Seat extends AbstractEntity<Long> {
 
     @Column(name = "table_no", nullable = false, unique = true)
@@ -28,13 +29,19 @@ public class Seat extends AbstractEntity<Long> {
     @Enumerated(EnumType.STRING)
     private TableStatus status = TableStatus.AVAILABLE;
 
+    @Column(name = "is_active", columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private boolean isActive;
+
     @PrePersist
-    @PreUpdate
     private void prePersist() {
 
         this.tableNo = this.tableNo.trim().replaceAll("\\s+", "");;
     }
 
+    @PreUpdate
+    private void preUpdate() {
+        this.tableNo = this.tableNo.trim().replaceAll("\\s+", "");;
+    }
 
     @Getter
     @Setter
@@ -49,6 +56,7 @@ public class Seat extends AbstractEntity<Long> {
 
         @EnumSubset(enumClass = TableStatus.class)
         private String status;
+
     }
 
     @Getter

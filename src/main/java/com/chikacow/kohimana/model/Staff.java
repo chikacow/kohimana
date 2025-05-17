@@ -5,7 +5,9 @@ import com.chikacow.kohimana.util.enums.WorkingStatus;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 /**
@@ -28,11 +30,14 @@ public class Staff extends AbstractEntity<Long> {
     private User user;
 
     @Column(name = "start_from")
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    private Date startDate;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    @JsonFormat(pattern = "dd-MM-yyyy")
+    private LocalDate startDate;
 
     @Column(name = "end_since")
-    private Date endDate = null;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    @JsonFormat(pattern = "dd-MM-yyyy")
+    private LocalDate endDate = null;
 
     @Column(name = "working_status")
     @Enumerated(EnumType.STRING)

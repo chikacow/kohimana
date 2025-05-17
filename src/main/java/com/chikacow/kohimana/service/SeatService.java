@@ -6,6 +6,7 @@ import com.chikacow.kohimana.repository.SeatRepository;
 
 import com.chikacow.kohimana.util.enums.TableStatus;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.FlushModeType;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -150,8 +151,8 @@ public class SeatService {
      */
     @Transactional
     public Seat.SeatResponseDTO updateSeat(Long id, Seat.SeatRequestDTO requestDTO) {
-        Seat seat = getSeatById(id);
-        //entityManager.detach(seat);
+        Seat seat = getSeatById(id); //which called
+
         if (!seat.getTableNo().equals(requestDTO.getTableNo())) {
             if (seatRepository.existsByTableNo(requestDTO.getTableNo())) {
                 throw new IllegalArgumentException("Table number already exists");
@@ -159,39 +160,31 @@ public class SeatService {
             seat.setTableNo(requestDTO.getTableNo());
         }
 
-
         seat.setDescription(requestDTO.getDescription());
         seat.setStatus(TableStatus.fromString(requestDTO.getStatus()));
-        //3 câu lệnh update chờ đc commit
 
-       // entityManager.flush();
-        //seatRepository.save(seat);
-        //đưa seat vào persistance context
-//        log.info(seat.getTableNo());
-
-       // entityManager.flush(); // force sync with DB
-
-//        seat.setTableNo("koko");
-//        log.info(seat.getTableNo());
-//
-//        entityManager.refresh(seat); // reload from DB
-//        log.info(seat.getTableNo());
+        /**
+         * bug, this should be automatically called but i have to do it manually to achieve something obvious
+         */
+        entityManager.flush();
 
         return Seat.SeatResponseDTO.builder()
                 .tableNo(seat.getTableNo())
                 .description(seat.getDescription())
                 .status(seat.getStatus())
                 .build();
-
     }
 
     /**
      * Delete the seat from the system
      * @param id
      */
-    public void deleteSeat(Long id) {
+    public String deleteSeat(Long id) {
         Seat seat = getSeatById(id);
-        seatRepository.delete(seat);
+        seat.setActive(!seat.isActive());
+        seatRepository.save(seat);
+        return seat.isActive() ? "true" : "false";
+
     }
 
 
@@ -201,9 +194,17 @@ public class SeatService {
      * @param status
      * @return
      */
-    public Seat updateSeatStatus(Long id, TableStatus status) {
+    public Seat.SeatResponseDTO updateSeatStatus(Long id, String status) {
         Seat seat = getSeatById(id);
-        seat.setStatus(status);
-        return seatRepository.save(seat);
+        seat.setStatus(TableStatus.fromString(status));
+        Seat saved = seatRepository.save(seat);
+
+        Seat.SeatResponseDTO res = Seat.SeatResponseDTO.builder()
+                .tableNo(saved.getTableNo())
+                .description(saved.getDescription())
+                .status(saved.getStatus())
+                .build();
+
+        return res;
     }
 }

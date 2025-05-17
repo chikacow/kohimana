@@ -24,7 +24,7 @@ import java.util.Date;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
+@Slf4j(topic = "STAFF-SERVICE")
 public class StaffServiceImpl implements StaffService {
 
     private final StaffRepository staffRepository;
@@ -44,8 +44,8 @@ public class StaffServiceImpl implements StaffService {
         Staff newStaff = Staff.builder()
                 .user(user)
                 .startDate(staffRequestDTO.getStartDate())
-                .staffTeam(staffRequestDTO.getStaffTeam())
-                .workingStatus(staffRequestDTO.getWorkingStatus())
+                .staffTeam(StaffTeam.fromString(staffRequestDTO.getStaffTeam()))
+                .workingStatus(WorkingStatus.fromString(staffRequestDTO.getWorkingStatus()))
                 .build();
 
         Staff saved = staffRepository.save(newStaff);
@@ -61,6 +61,7 @@ public class StaffServiceImpl implements StaffService {
     }
 
     @Override
+   // @Transactional
     public StaffResponseDTO updateStaff(Long staffId, StaffRequestDTO staffRequestDTO) {
 
         Staff existingStaff = staffRepository.findById(staffId).orElseThrow(() -> new RuntimeException("Staff not found"));
@@ -69,10 +70,10 @@ public class StaffServiceImpl implements StaffService {
             existingStaff.setStartDate(staffRequestDTO.getStartDate());
         }
         if (staffRequestDTO.getWorkingStatus() != null) {
-            existingStaff.setWorkingStatus(staffRequestDTO.getWorkingStatus());
+            existingStaff.setWorkingStatus(WorkingStatus.fromString(staffRequestDTO.getWorkingStatus()));
         }
         if (staffRequestDTO.getStaffTeam() != null) {
-            existingStaff.setStaffTeam(staffRequestDTO.getStaffTeam());
+            existingStaff.setStaffTeam(StaffTeam.fromString(staffRequestDTO.getStaffTeam()));
         }
 
 
