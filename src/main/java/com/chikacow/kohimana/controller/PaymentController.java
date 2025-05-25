@@ -2,10 +2,12 @@ package com.chikacow.kohimana.controller;
 
 import com.chikacow.kohimana.dto.request.PaymentRequestDTO;
 import com.chikacow.kohimana.dto.response.PaymentResponseDTO;
+import com.chikacow.kohimana.dto.response.ResponseData;
 import com.chikacow.kohimana.service.PaymentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -26,9 +28,13 @@ public class PaymentController {
      * @return
      */
     @PostMapping
-    public ResponseEntity<PaymentResponseDTO> processPayment(@Valid @RequestBody PaymentRequestDTO requestDTO) {
-        PaymentResponseDTO response = paymentService.processPayment(requestDTO);
-        return ResponseEntity.ok(response);
+    public ResponseData<?> processPayment(@Valid @RequestBody PaymentRequestDTO requestDTO) {
+        var res = paymentService.processPayment(requestDTO);
+        return ResponseData.builder()
+                .status(HttpStatus.OK.value())
+                .message("Success")
+                .data(res)
+                .build();
     }
 
     /**

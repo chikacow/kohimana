@@ -2,11 +2,13 @@ package com.chikacow.kohimana.controller;
 
 import com.chikacow.kohimana.dto.request.OrderRequestDTO;
 import com.chikacow.kohimana.dto.response.OrderResponseDTO;
+import com.chikacow.kohimana.dto.response.ResponseData;
 import com.chikacow.kohimana.service.OrderService;
 import com.chikacow.kohimana.util.enums.OrderStatus;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -29,9 +31,13 @@ public class OrderController {
      * @return
      */
     @PostMapping("/create")
-    public ResponseEntity<OrderResponseDTO> createOrder(@Valid @RequestBody OrderRequestDTO request) {
-        OrderResponseDTO response = orderService.createOrder(request);
-        return ResponseEntity.ok(response);
+    public ResponseData<?> createOrder(@Valid @RequestBody OrderRequestDTO request) {
+        var res = orderService.createOrder(request);
+        return ResponseData.builder()
+                .status(HttpStatus.OK.value())
+                .message("Success")
+                .data(res)
+                .build();
     }
 
 

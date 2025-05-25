@@ -35,12 +35,14 @@ public class Seat extends AbstractEntity<Long> {
     @PrePersist
     private void prePersist() {
 
-        this.tableNo = this.tableNo.trim().replaceAll("\\s+", "");;
+        this.tableNo = this.tableNo.trim().replaceAll("\\s+", "");
+        log.info("prepersist called");
     }
 
     @PreUpdate
     private void preUpdate() {
-        this.tableNo = this.tableNo.trim().replaceAll("\\s+", "");;
+        this.tableNo = this.tableNo.trim().replaceAll("\\s+", "");
+        log.info("preupdate called");
     }
 
     @Getter

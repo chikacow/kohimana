@@ -87,7 +87,7 @@ public class SeatService {
      * @param requestDTO
      * @return
      */
-    @Transactional //auto flush() at the end
+    @Transactional
     public Seat.SeatResponseDTO createSeat(Seat.SeatRequestDTO requestDTO) {
         if (seatRepository.existsByTableNo(requestDTO.getTableNo())) {
             throw new IllegalArgumentException("Table number already exists");
@@ -100,17 +100,17 @@ public class SeatService {
                 .build();
 
         //move saved to persistent context, new object -> prepare a persist()
-        seatRepository.save(saved);
-        //entityManager.detach(saved);
-        //saved.setTableNo("self");
-        //entityManager.flush();
+        entityManager.persist(saved);
 
+
+        log.info("create");
         Seat.SeatResponseDTO res = Seat.SeatResponseDTO.builder()
                 .tableNo(saved.getTableNo())
                 .description(saved.getDescription())
                 .status(saved.getStatus())
                 .build();
 
+        log.info("create completed");
         //auto flush()
         return res;
     }
@@ -166,13 +166,18 @@ public class SeatService {
         /**
          * bug, this should be automatically called but i have to do it manually to achieve something obvious
          */
-        entityManager.flush();
+        //entityManager.flush();
 
-        return Seat.SeatResponseDTO.builder()
+
+        log.info("update");
+
+        var res = Seat.SeatResponseDTO.builder()
                 .tableNo(seat.getTableNo())
                 .description(seat.getDescription())
                 .status(seat.getStatus())
                 .build();
+        log.info("update complete");
+        return res;
     }
 
     /**

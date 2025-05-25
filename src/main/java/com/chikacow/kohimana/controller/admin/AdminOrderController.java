@@ -1,10 +1,12 @@
 package com.chikacow.kohimana.controller.admin;
 
 import com.chikacow.kohimana.dto.response.OrderResponseDTO;
+import com.chikacow.kohimana.dto.response.ResponseData;
 import com.chikacow.kohimana.service.OrderService;
 import com.chikacow.kohimana.util.enums.OrderStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -27,10 +29,15 @@ public class AdminOrderController {
      */
     @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER', 'STAFF')")
     @PatchMapping("/{orderId}/status")
-    public ResponseEntity<OrderResponseDTO> updateOrderStatus(
+    public ResponseData<?> updateOrderStatus(
             @PathVariable Long orderId,
             @RequestParam OrderStatus status) {
-        return ResponseEntity.ok(orderService.updateOrderStatus(orderId, status));
+        var res = orderService.updateOrderStatus(orderId, status);
+        return ResponseData.builder()
+                .status(HttpStatus.OK.value())
+                .message("Success")
+                .data(res)
+                .build();
     }
 
     /**
@@ -40,9 +47,14 @@ public class AdminOrderController {
      */
     @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER', 'STAFF')")
     @GetMapping("/seat/{seatId}")
-    public ResponseEntity<List<OrderResponseDTO>> getOrdersBySeat(
+    public ResponseData<?> getOrdersBySeat(
             @PathVariable Long seatId) {
-        return ResponseEntity.ok(orderService.getOrdersBySeat(seatId));
+        var res = orderService.getOrdersBySeat(seatId);
+        return ResponseData.builder()
+                .status(HttpStatus.OK.value())
+                .message("Success")
+                .data(res)
+                .build();
     }
 
     /**
@@ -52,8 +64,13 @@ public class AdminOrderController {
      */
     @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER', 'STAFF')")
     @GetMapping("/status")
-    public ResponseEntity<List<OrderResponseDTO>> getOrdersByStatus(
+    public ResponseData<?> getOrdersByStatus(
             @RequestParam List<OrderStatus> status ) {
-        return ResponseEntity.ok(orderService.getOrdersByStatus(status));
+        var res = orderService.getOrdersByStatus(status);
+        return ResponseData.builder()
+                .status(HttpStatus.OK.value())
+                .message("Success")
+                .data(res)
+                .build();
     }
 }

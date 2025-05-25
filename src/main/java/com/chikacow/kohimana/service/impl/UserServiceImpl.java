@@ -1,13 +1,12 @@
 package com.chikacow.kohimana.service.impl;
 
 import com.chikacow.kohimana.dto.request.UpdateUserRequestDTO;
-import com.chikacow.kohimana.dto.request.UserRequestDTO;
 import com.chikacow.kohimana.dto.response.PageResponse;
+import com.chikacow.kohimana.dto.response.StatisticalResponse;
 import com.chikacow.kohimana.dto.response.UserResponseDTO;
 import com.chikacow.kohimana.exception.HaveNoAccessToResourceException;
 import com.chikacow.kohimana.exception.ResourceNotFoundException;
 import com.chikacow.kohimana.model.User;
-import com.chikacow.kohimana.model.rbac.Role;
 import com.chikacow.kohimana.repository.SearchRepository;
 import com.chikacow.kohimana.repository.UserRepository;
 import com.chikacow.kohimana.service.UserService;
@@ -25,16 +24,17 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDate;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static com.chikacow.kohimana.util.AppConst.SORT_BY;
-import static com.chikacow.kohimana.util.helper.SmoothData.smooth;
 
 @Service
 @Slf4j
@@ -331,6 +331,104 @@ public class UserServiceImpl implements UserService {
 
 
         return newUser.getIsActive() ? AccountStatus.ACTIVE : AccountStatus.INACTIVE;
+    }
+
+    @Override
+    public List<UserResponseDTO> getActiveUsers() {
+        List<User> allUsers = userRepository.findAll();
+        List<User> activeUsers = allUsers.stream().filter(User::getIsActive).toList();
+
+        List<UserResponseDTO> res = activeUsers.stream()
+                .map(user -> UserResponseDTO.builder()
+                        .firstName(user.getFirstName())
+                        .lastName(user.getLastName())
+                        .email(user.getEmail())
+                        .phoneNumber(user.getPhoneNumber())
+                        .dateOfBirth(user.getDateOfBirth())
+                        .gender(user.getGender())
+                        .username(user.getUsername())
+                        .build())
+                .toList();
+
+        return res;
+    }
+
+    @Override
+    public Set<String> getDuplicateEmails() {
+        List<User> allUsers = userRepository.findAll();
+        Set<String> distinctEmail = allUsers.stream().map(u -> u.getEmail()).collect(Collectors.toSet());
+
+        Map<String, Integer> mp = distinctEmail.stream().collect(Collectors.toMap(Function.identity(), email -> 0));
+
+        allUsers.stream().forEach(e -> mp.put(e.getEmail(), mp.get(e.getEmail()) + 1));
+
+        Set<String> res = mp.entrySet().stream()
+                .filter(entry -> entry.getValue() > 1)
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toSet());
+
+//        for (Map.Entry<String, Integer> entry : mp.entrySet()) {
+//            if (entry.getValue() > 1) {
+//                res.add(entry.getKey());
+//            }
+//        }
+
+        return res;
+    }
+
+    @Override
+    public StatisticalResponse.AgeAndGender getAgeAndGenderStats() {
+        List<User> allUsers = userRepository.findAll();
+//        AtomicLong i = new AtomicLong();
+//        allUsers.stream().filter(u -> u.getGender() == Gender.MALE).map(u -> LocalDate.now().getYear() - u.getDateOfBirth().getYear()).forEach(i::addAndGet);
+
+        StatisticalResponse.AgeAndGender res = StatisticalResponse.AgeAndGender.builder()
+                .womenNumUser(
+                        allUsers.stream()
+                                .filter(u -> u.getGender() == Gender.FEMALE)
+                                .count()
+                )
+                .menNumUser(
+                        allUsers.stream()
+                                .filter(u -> u.getGender() == Gender.MALE)
+                                .count()
+                )
+                .womenAverageAge(
+                        allUsers.stream()
+                                .filter(u -> u.getGender() == Gender.FEMALE && u.getDateOfBirth() != null)
+                                .mapToInt(u -> LocalDate.now().getYear() - u.getDateOfBirth().getYear())
+                                .average().orElse(0.0)
+                )
+                .menAverageAge(
+                        allUsers.stream()
+                                .filter(u -> u.getGender() == Gender.MALE && u.getDateOfBirth() != null)
+                                .mapToInt(u -> LocalDate.now().getYear() - u.getDateOfBirth().getYear())
+                                .average().orElse(0.0)
+                )
+                .build();
+
+        return res;
+    }
+
+    @Override
+    public List<String> topOrderedUsers(int topNum) {
+        List<User> allUsers = userRepository.findAll();
+        List<User> sortedUsersDesc = allUsers.stream()
+                .sorted(Comparator.comparingInt((User u) -> u.getOrders().size()).reversed())
+                .limit(topNum).toList();
+
+        List<String> res = sortedUsersDesc.stream().map(u -> u.getUsername()).toList();
+
+        return res;
+
+    }
+
+    @Override
+    public Map<String, String> getAllUsernameAndPassword() {
+        List<User> allUsers = userRepository.findAll();
+        Map<String, String> res = allUsers.stream().collect(Collectors.toMap(User::getUsername, User::getPassword));
+
+        return res;
     }
 
     /**
