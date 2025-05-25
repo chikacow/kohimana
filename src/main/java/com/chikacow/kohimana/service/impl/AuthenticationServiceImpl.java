@@ -13,6 +13,8 @@ import com.chikacow.kohimana.model.Token;
 import com.chikacow.kohimana.model.User;
 import com.chikacow.kohimana.model.rbac.Role;
 import com.chikacow.kohimana.model.rbac.UserHasRole;
+import com.chikacow.kohimana.model.redis.RedisToken;
+import com.chikacow.kohimana.repository.RedisTokenRepository;
 import com.chikacow.kohimana.repository.UserHasRoleRepository;
 import com.chikacow.kohimana.repository.UserRepository;
 import com.chikacow.kohimana.service.*;
@@ -58,11 +60,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     private final TokenService tokenService;
 
+    private final RedisTokenService redisTokenService;
+
     private final PasswordEncoder passwordEncoder;
 
     private final RoleService  roleService;
 
     private final UserHasRoleRepository userHasRoleRepository;
+    private final RedisTokenRepository redisTokenRepository;
 
     public TokenResponse authenticate(SignInRequest request) {
         log.info(request.getUsername() + " " + request.getPassword());
@@ -93,6 +98,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .username(user.getUsername())
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
+                .build());
+
+        ///save to redis as well
+        redisTokenService.save(RedisToken.builder()
+                .id(user.getUsername())
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .expiresIn(200L)
                 .build());
 
         return TokenResponse.builder()
@@ -129,6 +142,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
+    @Transactional
     public String removeToken(HttpServletRequest request) {
 
         String token = request.getHeader("Authorization");
@@ -146,7 +160,16 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         System.out.println("username extracted is: " + username);
         Token currentToken = tokenService.getByUsername(username);
 
+        ///check if the redis is existed, if ttl is over, then bug will happend since this version performs both in sql and redis
+
+        RedisToken redisToken = redisTokenService.getById(username);
+
+        ///sql
         tokenService.delete(currentToken);
+
+
+        ///redis token
+        redisTokenService.delete(username);
 
         System.out.println("Deleted");
         return "logout successfully";
@@ -169,6 +192,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         // save to db
         tokenService.save(Token.builder().username(user.getUsername()).resetToken(resetToken).build());
 
+        ///redis
+        redisTokenService.save(RedisToken.builder().id(user.getUsername()).resetToken(resetToken).build());
+
         // TODO send email to user
         String confirmLink = String.format("curl --location 'http://localhost:9091/auth/reset-password' \\\n" +
                 "--header 'accept: */*' \\\n" +
@@ -190,7 +216,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
            throw new InvalidDataException("Unallowed access to this token");
        }
 
-        return "Reset";
+       redisTokenService.getById(username);
+
+       return "Reset";
     }
 
     @Override

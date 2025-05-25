@@ -30,7 +30,6 @@ public class CategoryServiceImpl implements CategoryService {
     @PersistenceContext
     private final EntityManager entityManager;
 
-
     @Override
     public Category getCategoryById(Long id) {
         return categoryRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("category not found"));

@@ -6,14 +6,13 @@ import lombok.*;
 @Setter
 @Builder
 @AllArgsConstructor
-@RequiredArgsConstructor
+
 public class StatisticalResponse {
 
     @Getter
     @Setter
     @Builder
     @AllArgsConstructor
-    @RequiredArgsConstructor
     public static class AgeAndGender {
         private double womenAverageAge;
         private double menAverageAge;
