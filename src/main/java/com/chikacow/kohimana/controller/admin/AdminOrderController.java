@@ -89,4 +89,21 @@ public class AdminOrderController {
                 .data(res)
                 .build();
     }
+
+    /**
+     * for staff to tick Pending order is noticed
+     * @param
+     * @return
+     */
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER', 'STAFF')")
+    @GetMapping("/take-order/{id}")
+    public ResponseData<?> takeOrder(@PathVariable("id") Long orderId) {
+        orderService.takeOrder(orderId);
+        return ResponseData.builder()
+                .status(HttpStatus.OK.value())
+                .message("Success")
+                .data(null)
+                .build();
+    }
+
 }

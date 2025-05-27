@@ -182,6 +182,18 @@ public class OrderServiceImpl implements OrderService {
         return res;
     }
 
+    @Override
+    public void takeOrder(Long orderId) {
+        Order order = getOrderById(orderId);
+        redisOrderService.delete(order.getId().toString());
+
+        ///fix to pending to avoid misusing this function
+        order.setStatus(OrderStatus.PENDING.next());
+
+        orderRepository.save(order);
+
+    }
+
     private boolean checkAuthorization(String username) {
         if (SecurityContextHolder.getContext().getAuthentication().getName().equals(username)) {
             return true;

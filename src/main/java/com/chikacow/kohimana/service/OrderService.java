@@ -21,4 +21,6 @@ public interface OrderService {
 
     public List<OrderResponseDTO> getLatestOrders();
 
+    public void takeOrder(Long orderId);
+
 }
