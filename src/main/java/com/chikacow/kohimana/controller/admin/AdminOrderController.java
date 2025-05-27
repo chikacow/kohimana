@@ -73,4 +73,20 @@ public class AdminOrderController {
                 .data(res)
                 .build();
     }
+
+    /**
+     * for staff to check for incoming orders
+     * @param
+     * @return
+     */
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER', 'STAFF')")
+    @GetMapping("/get-latest")
+    public ResponseData<?> getLatestPendingOrders() {
+        var res = orderService.getLatestOrders();
+        return ResponseData.builder()
+                .status(HttpStatus.OK.value())
+                .message("Success")
+                .data(res)
+                .build();
+    }
 }

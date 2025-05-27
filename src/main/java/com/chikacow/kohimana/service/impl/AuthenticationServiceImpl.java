@@ -14,7 +14,7 @@ import com.chikacow.kohimana.model.User;
 import com.chikacow.kohimana.model.rbac.Role;
 import com.chikacow.kohimana.model.rbac.UserHasRole;
 import com.chikacow.kohimana.model.redis.RedisToken;
-import com.chikacow.kohimana.repository.RedisTokenRepository;
+import com.chikacow.kohimana.repository.redis.RedisTokenRepository;
 import com.chikacow.kohimana.repository.UserHasRoleRepository;
 import com.chikacow.kohimana.repository.UserRepository;
 import com.chikacow.kohimana.service.*;
@@ -35,15 +35,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-
-import static com.chikacow.kohimana.util.helper.SmoothData.smooth;
 
 @Service
 @RequiredArgsConstructor

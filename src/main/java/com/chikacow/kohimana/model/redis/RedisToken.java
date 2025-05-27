@@ -20,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 @RedisHash("RedisToken")
 public class RedisToken implements Serializable {
 
+    //id stand for username
     private String id;
     private String accessToken;
     private String refreshToken;

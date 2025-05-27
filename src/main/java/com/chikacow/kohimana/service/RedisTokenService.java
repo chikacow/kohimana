@@ -2,10 +2,13 @@ package com.chikacow.kohimana.service;
 
 import com.chikacow.kohimana.exception.ResourceNotFoundException;
 import com.chikacow.kohimana.model.redis.RedisToken;
-import com.chikacow.kohimana.repository.RedisTokenRepository;
+import com.chikacow.kohimana.repository.redis.RedisTokenRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -23,5 +26,7 @@ public class RedisTokenService {
 
     public RedisToken getById(String id) {
         return redisTokenRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Token not fount in redis"));
+
     }
+
 }

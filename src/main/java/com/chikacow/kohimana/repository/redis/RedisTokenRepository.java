@@ -1,6 +1,5 @@
-package com.chikacow.kohimana.repository;
+package com.chikacow.kohimana.repository.redis;
 
-import com.chikacow.kohimana.model.Token;
 import com.chikacow.kohimana.model.redis.RedisToken;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
