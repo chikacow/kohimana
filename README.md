@@ -70,9 +70,9 @@ cd kohimana
 Setup MySQL Database
 ```sql
 CREATE DATABASE kohimana;
-Update application.properties:
 ```
 
+Update application.properties:
 ```
 properties
 spring.datasource.url=jdbc:mysql://localhost:3306/kohimana
