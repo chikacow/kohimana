@@ -279,7 +279,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private void saveToSecurityContextHolder(User user) {
         UserDetails userDetail = userService.getUserDetailsService().loadUserByUsername(user.getUsername());
         SecurityContext newContext = SecurityContextHolder.createEmptyContext();
-        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetail, null, userDetaill.getAuthorities());
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetail, null, userDetail.getAuthorities());
         //authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         newContext.setAuthentication(authentication);
         SecurityContextHolder.setContext(newContext);
