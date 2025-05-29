@@ -7,6 +7,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -23,11 +24,11 @@ public abstract class AbstractEntity<T> implements Serializable { //avoid warnin
 
     @CreatedBy
     @Column(name = "created_by")
-    private T createdBy;
+    private String createdBy;
 
-    @LastModifiedBy
+
     @Column(name = "updated_by")
-    private T updatedBy;
+    private String updatedBy;
 
     @Column(name = "created_at")
     @CreationTimestamp
@@ -38,4 +39,14 @@ public abstract class AbstractEntity<T> implements Serializable { //avoid warnin
     @UpdateTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     private Date updatedAt;
+
+    @PrePersist
+    public void setCreatedBy() {
+        this.createdBy = SecurityContextHolder.getContext().getAuthentication().getName();
+    }
+
+    @PreUpdate
+    public void setUpdatedBy() {
+        this.updatedBy = SecurityContextHolder.getContext().getAuthentication().getName();
+    }
 }

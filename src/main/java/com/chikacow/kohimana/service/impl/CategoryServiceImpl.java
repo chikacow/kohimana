@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-@Slf4j
+@Slf4j(topic = "CATEGORY-SERVICE")
 @RequiredArgsConstructor
 public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
@@ -63,8 +63,6 @@ public class CategoryServiceImpl implements CategoryService {
                 .build();
 
         Category newCate = categoryRepository.save(category);
-
-
 
         CategoryResponseDTO res = CategoryResponseDTO.builder()
                 .categoryID(newCate.getCode())

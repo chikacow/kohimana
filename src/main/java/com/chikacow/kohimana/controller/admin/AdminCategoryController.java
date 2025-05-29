@@ -24,7 +24,7 @@ import java.util.Map;
 @Validated
 @Slf4j
 public class AdminCategoryController {
-    private CategoryService categoryService;
+    private final CategoryService categoryService;
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
     @PostMapping("/create")
