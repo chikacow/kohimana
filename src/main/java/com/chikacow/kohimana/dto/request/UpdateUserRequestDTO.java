@@ -1,5 +1,6 @@
 package com.chikacow.kohimana.dto.request;
 
+import com.chikacow.kohimana.model.User;
 import com.chikacow.kohimana.util.enums.Gender;
 import com.chikacow.kohimana.validator.GenderSubset;
 import com.chikacow.kohimana.validator.PhoneNumber;
@@ -21,11 +22,11 @@ import static com.chikacow.kohimana.util.enums.Gender.*;
 @Builder
 @AllArgsConstructor
 @RequiredArgsConstructor
-public class UpdateUserRequestDTO {
-    @NotBlank(message = "First name must not be blank")
+public class UpdateUserRequestDTO implements UserDTO, Serializable {
+
     private String firstName;
 
-    @NotBlank(message = "Last name must not be blank")
+
     private String lastName;
 
     @Email(message = "Must match email format")

@@ -36,6 +36,8 @@ public class RedisTokenService {
             return redisTokenRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Token not fount in redis"));
         } catch (Exception e) {
             log.info("Redis not connected");
+        } finally {
+            return null;
         }
     }
 

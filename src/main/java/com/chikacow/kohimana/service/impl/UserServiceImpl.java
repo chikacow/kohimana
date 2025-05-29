@@ -1,12 +1,14 @@
 package com.chikacow.kohimana.service.impl;
 
 import com.chikacow.kohimana.dto.request.UpdateUserRequestDTO;
+import com.chikacow.kohimana.dto.request.UserRequestDTO;
 import com.chikacow.kohimana.dto.response.PageResponse;
 import com.chikacow.kohimana.dto.response.StatisticalResponse;
 import com.chikacow.kohimana.dto.response.UserResponseDTO;
 import com.chikacow.kohimana.exception.HaveNoAccessToResourceException;
 import com.chikacow.kohimana.exception.InvalidDataException;
 import com.chikacow.kohimana.exception.ResourceNotFoundException;
+import com.chikacow.kohimana.mapper.UserMapper;
 import com.chikacow.kohimana.model.User;
 import com.chikacow.kohimana.repository.SearchRepository;
 import com.chikacow.kohimana.repository.UserRepository;
@@ -14,6 +16,8 @@ import com.chikacow.kohimana.service.UserService;
 import com.chikacow.kohimana.util.enums.AccountStatus;
 import com.chikacow.kohimana.util.enums.Gender;
 import com.chikacow.kohimana.util.helper.SmoothData;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -25,6 +29,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDate;
@@ -44,6 +49,8 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final SearchRepository searchRepository;
 
+    @PersistenceContext
+    private final EntityManager entityManager;
 
     /**
      *Return UserDetails object used for securities, should be found in PreFilter and Jwt handlings
@@ -57,7 +64,7 @@ public class UserServiceImpl implements UserService {
                 UserDetails j = null;
                 try {
                     UserDetails u = userRepository.findByUsername(username)
-                            .orElseThrow(() -> new UsernameNotFoundException("username not found"));
+                            .orElseThrow(() -> new UsernameNotFoundException("Username not found"));
                     System.out.println(u.getUsername());
                     System.out.println(u.getPassword());
                     j = u;
@@ -72,7 +79,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserById(Long id) {
-        return userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("user not found"));
+        return userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 
     /**
@@ -81,7 +88,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public User getUserByEmail(String email) {
-        return userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("email not found"));
+        return userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("Email not found"));
     }
 
     /**
@@ -91,7 +98,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public User getByUsername(String username) {
-        return userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("username not found"));
+        return userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("Username not found"));
     }
 
     @Override
@@ -121,10 +128,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public PageResponse<?> getAllUsers(int pageNo, int pageSize, String sortBy) {
-        int realPageNo = 0;
-        if (pageNo > 0) {
-            realPageNo = pageNo - 1;
-        }
+        int realPageNo = pageNo > 0 ? pageNo - 1 : 0;
 
         List<Sort.Order> sorts = new ArrayList<>();
 
@@ -142,18 +146,8 @@ public class UserServiceImpl implements UserService {
         }
 
         Pageable pageable = PageRequest.of(realPageNo, pageSize, Sort.by(sorts));
-
         Page<User> page = userRepository.findAll(pageable);
-        List<UserResponseDTO> resList = page.stream().map(user -> UserResponseDTO.builder()
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .gender(user.getGender())
-                .phoneNumber(user.getPhoneNumber())
-                .email(user.getEmail())
-                .dateOfBirth(user.getDateOfBirth())
-                .password(user.getPassword())
-                .username(user.getUsername())
-                .build()).toList();
+        List<UserResponseDTO> resList = page.stream().map(UserMapper::fromEntityToResponseDTO).toList();
 
         return PageResponse.builder()
                 .items(resList)
@@ -172,10 +166,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public PageResponse<?> getAllUsersWithSortByMultipleColumns(int pageNo, int pageSize, String... sorts) {
-        int realPageNo = 0;
-        if (pageNo > 0) {
-            realPageNo = pageNo - 1;
-        }
+        int realPageNo = pageNo > 0 ? pageNo - 1 : 0;
 
         List<Sort.Order> orders = new ArrayList<>();
 
@@ -196,18 +187,8 @@ public class UserServiceImpl implements UserService {
         }
 
         Pageable pageable = PageRequest.of(realPageNo, pageSize, Sort.by(orders));
-
         Page<User> page = userRepository.findAll(pageable);
-        List<UserResponseDTO> resList = page.stream().map(user -> UserResponseDTO.builder()
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .gender(user.getGender())
-                .phoneNumber(user.getPhoneNumber())
-                .email(user.getEmail())
-                .dateOfBirth(user.getDateOfBirth())
-                .password(user.getPassword())
-                .username(user.getUsername())
-                .build()).toList();
+        List<UserResponseDTO> resList = page.stream().map(UserMapper::fromEntityToResponseDTO).toList();
 
         return PageResponse.builder()
                 .items(resList)
@@ -250,24 +231,8 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public UserResponseDTO getUserInfo(Long id) {
-        if (!checkAuthorization(id)) {
-            throw new HaveNoAccessToResourceException("Do not access other user's info");
-        }
-
-
-        User retrivedUser =  getUserById(id);
-        UserResponseDTO res = UserResponseDTO.builder()
-                .firstName(retrivedUser.getFirstName())
-                .lastName(retrivedUser.getLastName())
-                .email(retrivedUser.getEmail())
-                .gender(retrivedUser.getGender())
-                .username(retrivedUser.getUsername())
-                .createdAt(retrivedUser.getCreatedAt())
-                .dateOfBirth(retrivedUser.getDateOfBirth())
-                .phoneNumber(retrivedUser.getPhoneNumber())
-                .build();
-
-        return res;
+        checkAuthorization(id);
+        return UserMapper.fromEntityToResponseDTO(getUserById(id));
     }
 
     /**
@@ -277,48 +242,14 @@ public class UserServiceImpl implements UserService {
      * @return
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public UserResponseDTO updateUserInfo(Long id, UpdateUserRequestDTO requestDTO) {
+        checkAuthorization(id);
 
-        if (!checkAuthorization(id)) {
-            throw new HaveNoAccessToResourceException("Do not access other user's info");
-        }
-
-        String firstname_smooth = SmoothData.smooth(requestDTO.getFirstName());
-        String lastname_smooth = SmoothData.smooth(requestDTO.getLastName());
         User user = getUserById(id);
+        UserMapper.updateUserFromRequestDTO(user, requestDTO);
 
-        if (requestDTO.getFirstName() != null) {
-            user.setFirstName(firstname_smooth);
-        }
-        if (requestDTO.getLastName() != null) {
-            user.setLastName(lastname_smooth);
-        }
-        if (requestDTO.getEmail() != null) {
-            user.setEmail(requestDTO.getEmail());
-        }
-        if (requestDTO.getGender() != null) {
-            user.setGender(Gender.fromString(requestDTO.getGender()));
-        }
-        if (requestDTO.getDateOfBirth() != null) {
-            user.setDateOfBirth(requestDTO.getDateOfBirth());
-        }
-        if (requestDTO.getPhone() != null) {
-            user.setPhoneNumber(requestDTO.getPhone());
-        }
-
-        System.out.println(user.toString());
-
-        User newUser = userRepository.save(user);
-
-        UserResponseDTO res = UserResponseDTO.builder()
-                .firstName(newUser.getFirstName())
-                .lastName(newUser.getLastName())
-                .email(newUser.getEmail())
-                .gender(newUser.getGender())
-                .dateOfBirth(newUser.getDateOfBirth())
-                .phoneNumber(newUser.getPhoneNumber())
-                .build();
-        return res;
+        return UserMapper.fromEntityToResponseDTO(user);
     }
 
     /**
@@ -335,7 +266,6 @@ public class UserServiceImpl implements UserService {
 
         User newUser = userRepository.save(user);
 
-
         return newUser.getIsActive() ? AccountStatus.ACTIVE : AccountStatus.INACTIVE;
     }
 
@@ -344,19 +274,10 @@ public class UserServiceImpl implements UserService {
         List<User> allUsers = userRepository.findAll();
         List<User> activeUsers = allUsers.stream().filter(User::getIsActive).toList();
 
-        List<UserResponseDTO> res = activeUsers.stream()
-                .map(user -> UserResponseDTO.builder()
-                        .firstName(user.getFirstName())
-                        .lastName(user.getLastName())
-                        .email(user.getEmail())
-                        .phoneNumber(user.getPhoneNumber())
-                        .dateOfBirth(user.getDateOfBirth())
-                        .gender(user.getGender())
-                        .username(user.getUsername())
-                        .build())
+        return activeUsers.stream()
+                .map(UserMapper::fromEntityToResponseDTO)
                 .toList();
 
-        return res;
     }
 
     @Override
@@ -452,10 +373,10 @@ public class UserServiceImpl implements UserService {
      */
     private boolean checkAuthorization(Long userId) {
         String username = getUserById(userId).getUsername();
-        if (SecurityContextHolder.getContext().getAuthentication().getName().equals(username)) {
-            return true;
+        if (!SecurityContextHolder.getContext().getAuthentication().getName().equals(username)) {
+            throw new HaveNoAccessToResourceException("Do not access other user's info");
         }
-        return false;
+        return true;
 
     }
 

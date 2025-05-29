@@ -20,7 +20,7 @@ import static com.chikacow.kohimana.util.enums.Gender.*;
 @Builder
 @AllArgsConstructor
 @RequiredArgsConstructor
-public class UserRequestDTO implements Serializable {
+public class UserRequestDTO implements UserDTO, Serializable {
 
     @NotBlank(message = "firstname must not be blank")
     private String firstName;
