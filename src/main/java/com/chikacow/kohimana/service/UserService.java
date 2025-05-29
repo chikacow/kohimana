@@ -22,6 +22,7 @@ public interface UserService {
 
     public User getByUsername(String username);
 
+    public User save(User user);
     //public UserResponseDTO createUser(UserRequestDTO userRequestDTO);
 
     public User updateUser(User user);
@@ -52,6 +53,8 @@ public interface UserService {
     public List<String> topOrderedUsers(int topNum);
 
     public Map<String, String> getAllUsernameAndPassword();
+
+    public boolean isUsernameExist(String username);
 
 
 

@@ -92,7 +92,7 @@ public class StaffServiceImpl implements StaffService {
     @Transactional
     public String deleteStaff(Long id) {
         Staff staff = staffRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Staff with ID " + id + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Staff with ID " + id + " not found"));
 
         User user = userService.getUserByStaffId(id);
         UserHasRole uhr = null;

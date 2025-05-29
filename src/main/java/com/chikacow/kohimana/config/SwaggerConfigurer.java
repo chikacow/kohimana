@@ -14,7 +14,7 @@ import java.util.List;
 
 @Configuration
 @Profile({"test", "prod"})
-public class SwaggerConfig {
+public class SwaggerConfigurer {
     //openApi
 
     @Bean

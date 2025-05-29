@@ -1,7 +1,6 @@
 package com.chikacow.kohimana.dto.request;
 
-import com.chikacow.kohimana.util.enums.Gender;
-import com.chikacow.kohimana.util.enums.Role;
+import com.chikacow.kohimana.util.enums.RoleEnum;
 import com.chikacow.kohimana.validator.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.Email;
@@ -12,7 +11,6 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 
 import static com.chikacow.kohimana.util.enums.Gender.*;
@@ -54,5 +52,7 @@ public class UserRequestDTO implements Serializable {
     //@Password
     private String password;
 
-    private List<String> roles;
+
+//    @EnumSubset(enumClass = RoleEnum.class)
+    private List<RoleEnum> roles;
 }

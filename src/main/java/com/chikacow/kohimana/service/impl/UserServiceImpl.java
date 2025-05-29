@@ -5,6 +5,7 @@ import com.chikacow.kohimana.dto.response.PageResponse;
 import com.chikacow.kohimana.dto.response.StatisticalResponse;
 import com.chikacow.kohimana.dto.response.UserResponseDTO;
 import com.chikacow.kohimana.exception.HaveNoAccessToResourceException;
+import com.chikacow.kohimana.exception.InvalidDataException;
 import com.chikacow.kohimana.exception.ResourceNotFoundException;
 import com.chikacow.kohimana.model.User;
 import com.chikacow.kohimana.repository.SearchRepository;
@@ -91,6 +92,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getByUsername(String username) {
         return userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("username not found"));
+    }
+
+    @Override
+    public User save(User user) {
+        return userRepository.save(user);
     }
 
     /**
@@ -429,6 +435,14 @@ public class UserServiceImpl implements UserService {
         Map<String, String> res = allUsers.stream().collect(Collectors.toMap(User::getUsername, User::getPassword));
 
         return res;
+    }
+
+    @Override
+    public boolean isUsernameExist(String username) {
+        if (userRepository.existsByUsername(username)) {
+            throw new InvalidDataException("Username already exists");
+        }
+        return true;
     }
 
     /**

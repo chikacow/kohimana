@@ -3,6 +3,8 @@ package com.chikacow.kohimana.service;
 import com.chikacow.kohimana.dto.request.StaffRequestDTO;
 import com.chikacow.kohimana.dto.response.StaffResponseDTO;
 
+import javax.management.relation.RoleNotFoundException;
+
 public interface StaffService {
 
     public StaffResponseDTO confirmStaff(StaffRequestDTO staffRequestDTO);

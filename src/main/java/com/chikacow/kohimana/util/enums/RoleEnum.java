@@ -1,19 +1,19 @@
 package com.chikacow.kohimana.util.enums;
 
-public enum Role {
+public enum RoleEnum {
     ADMIN,
     MANAGER,
     STAFF,
     CUSTOMER;
 
 
-    public static String convertToString(final Role role) {
+    public static String convertToString(final RoleEnum role) {
         return role.name();
 
     }
-    public static Role fromString(String roleStr) {
+    public static RoleEnum fromString(String roleStr) {
         try {
-            return Role.valueOf(roleStr.toUpperCase());
+            return RoleEnum.valueOf(roleStr.toUpperCase());
         } catch (IllegalArgumentException | NullPointerException e) {
             throw new RuntimeException("Invalid role: " + roleStr);
         }

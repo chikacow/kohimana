@@ -25,6 +25,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+
+
 @RestController
 @RequestMapping("/api/v1/auth")
 @Validated
@@ -44,7 +46,7 @@ public class AuthenticationController {
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
     @PostMapping("/create-user")
-    public ResponseEntity<UserResponseDTO> createWorker(@Valid @RequestBody UserRequestDTO userRequestDTO) {
+    public ResponseEntity<UserResponseDTO> createWorker(@Valid @RequestBody UserRequestDTO userRequestDTO)  {
 
         UserResponseDTO dto = authenticationService.registerWorker(userRequestDTO);
 

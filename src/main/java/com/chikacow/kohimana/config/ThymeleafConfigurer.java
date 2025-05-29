@@ -1,4 +1,4 @@
 package com.chikacow.kohimana.config;
 
-public class ThymeleafConfig {
+public class ThymeleafConfigurer {
 }

@@ -22,7 +22,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 @RequiredArgsConstructor
-public class AppConfig {
+public class AppConfigurer {
 
     private final UserService userService;
     private final JwtFilter jwtFilter;

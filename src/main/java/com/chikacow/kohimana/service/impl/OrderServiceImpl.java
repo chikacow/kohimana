@@ -12,6 +12,7 @@ import com.chikacow.kohimana.repository.ProductRepository;
 import com.chikacow.kohimana.repository.SeatRepository;
 import com.chikacow.kohimana.service.*;
 import com.chikacow.kohimana.util.enums.OrderStatus;
+import com.chikacow.kohimana.util.helper.Converter;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
@@ -187,10 +188,11 @@ public class OrderServiceImpl implements OrderService {
         Order order = getOrderById(orderId);
         redisOrderService.delete(order.getId().toString());
 
-        ///fix to pending to avoid misusing this function
+        ///fixed to pending to avoid misusing this function
         order.setStatus(OrderStatus.PENDING.next());
 
         orderRepository.save(order);
+
 
     }
 
