@@ -3,6 +3,7 @@ package com.chikacow.kohimana.service.impl;
 import com.chikacow.kohimana.dto.request.StaffRequestDTO;
 import com.chikacow.kohimana.dto.response.StaffResponseDTO;
 import com.chikacow.kohimana.exception.ResourceNotFoundException;
+import com.chikacow.kohimana.mapper.StaffMapper;
 import com.chikacow.kohimana.model.Staff;
 import com.chikacow.kohimana.model.User;
 import com.chikacow.kohimana.model.rbac.Role;
@@ -16,11 +17,9 @@ import com.chikacow.kohimana.util.enums.StaffTeam;
 import com.chikacow.kohimana.util.enums.WorkingStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
 
 @Service
 @RequiredArgsConstructor
@@ -34,81 +33,45 @@ public class StaffServiceImpl implements StaffService {
 
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public StaffResponseDTO confirmStaff(StaffRequestDTO staffRequestDTO) {
 
+        ///annoying
         Role staff = roleService.getRoleByName("STAFF");
-
         User user = userService.getUserByUsernameAndRole(staffRequestDTO.getUsername(), staff.getId());
 
+        Staff newStaff = StaffMapper.fromRequestDTOToEntity(staffRequestDTO, user);
 
-        Staff newStaff = Staff.builder()
-                .user(user)
-                .startDate(staffRequestDTO.getStartDate())
-                .staffTeam(StaffTeam.fromString(staffRequestDTO.getStaffTeam()))
-                .workingStatus(WorkingStatus.fromString(staffRequestDTO.getWorkingStatus()))
-                .build();
+        staffRepository.save(newStaff);
 
-        Staff saved = staffRepository.save(newStaff);
-
-        StaffResponseDTO res = StaffResponseDTO.builder()
-                .username(saved.getUser().getUsername())
-                .startDate(saved.getStartDate())
-                .staffTeam(saved.getStaffTeam())
-                .workingStatus(saved.getWorkingStatus())
-                .build();
-
-        return res;
-    }
-
-    @Override
-   // @Transactional
-    public StaffResponseDTO updateStaff(Long staffId, StaffRequestDTO staffRequestDTO) {
-
-        Staff existingStaff = staffRepository.findById(staffId).orElseThrow(() -> new RuntimeException("Staff not found"));
-
-        if (staffRequestDTO.getStartDate() != null) {
-            existingStaff.setStartDate(staffRequestDTO.getStartDate());
-        }
-        if (staffRequestDTO.getWorkingStatus() != null) {
-            existingStaff.setWorkingStatus(WorkingStatus.fromString(staffRequestDTO.getWorkingStatus()));
-        }
-        if (staffRequestDTO.getStaffTeam() != null) {
-            existingStaff.setStaffTeam(StaffTeam.fromString(staffRequestDTO.getStaffTeam()));
-        }
-
-
-        Staff saved = staffRepository.save(existingStaff);
-
-        return StaffResponseDTO.builder()
-                .username(saved.getUser().getUsername())
-                .startDate(saved.getStartDate())
-                .endDate(saved.getEndDate())
-                .workingStatus(saved.getWorkingStatus())
-                .staffTeam(saved.getStaffTeam())
-                .build();
+        return StaffMapper.fromEntityToResponseDTO(newStaff);
     }
 
     @Override
     @Transactional
+    public StaffResponseDTO updateStaff(Long staffId, StaffRequestDTO staffRequestDTO) {
+        Staff staff = getById(staffId);
+
+        StaffMapper.updateEntityFromRequestDTO(staff, staffRequestDTO);
+
+        staffRepository.save(staff);
+
+        return StaffMapper.fromEntityToResponseDTO(staff);
+    }
+
+    ///bunch of shiet
+    @Override
+    @Transactional
     public String deleteStaff(Long id) {
-        Staff staff = staffRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Staff with ID " + id + " not found"));
+        Staff staff = getById(id);
+        staffRepository.delete(staff);
 
         User user = userService.getUserByStaffId(id);
-        UserHasRole uhr = null;
         Role role = roleService.getRoleByName("STAFF");
         log.info("userid: {}", user.getId());
         log.info("roleid: {}", role.getId());
-
-
-        staffRepository.delete(staff);
-       uhr = userHasRoleRepository.findByUserIdAndRoleName(user.getId(), role.getId());
-       userHasRoleRepository.deleteUhr(uhr.getId());
-
-
-
-
-
+        UserHasRole uhr = userHasRoleRepository.findByUserIdAndRoleName(user.getId(), role.getId());
+        userHasRoleRepository.deleteUhr(uhr.getId());
 
         return staff.getUser().getUsername();
     }
@@ -118,13 +81,12 @@ public class StaffServiceImpl implements StaffService {
         Staff staff = staffRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("staff not fount"));
 
-        return StaffResponseDTO.builder()
-                .username(staff.getUser().getUsername())
-                .startDate(staff.getStartDate())
-                .endDate(staff.getEndDate())
-                .workingStatus(staff.getWorkingStatus())
-                .staffTeam(staff.getStaffTeam())
-                .build();
+        return StaffMapper.fromEntityToResponseDTO(staff);
+    }
+
+    @Override
+    public Staff getById(Long id) {
+        return staffRepository.findById(id).orElseThrow(() -> new RuntimeException("Staff not found"));
     }
 
     @Override
@@ -132,12 +94,6 @@ public class StaffServiceImpl implements StaffService {
         Staff staff = staffRepository.findByUserUsername(username)
                 .orElseThrow(() -> new RuntimeException("Staff with username '" + username + "' not found"));
 
-        return StaffResponseDTO.builder()
-                .username(staff.getUser().getUsername())
-                .startDate(staff.getStartDate())
-                .endDate(staff.getEndDate())
-                .workingStatus(staff.getWorkingStatus())
-                .staffTeam(staff.getStaffTeam())
-                .build();
+        return StaffMapper.fromEntityToResponseDTO(staff);
     }
 }

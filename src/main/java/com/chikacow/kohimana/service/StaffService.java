@@ -2,6 +2,7 @@ package com.chikacow.kohimana.service;
 
 import com.chikacow.kohimana.dto.request.StaffRequestDTO;
 import com.chikacow.kohimana.dto.response.StaffResponseDTO;
+import com.chikacow.kohimana.model.Staff;
 
 import javax.management.relation.RoleNotFoundException;
 
@@ -14,6 +15,8 @@ public interface StaffService {
     public String deleteStaff(Long id);
 
     public StaffResponseDTO getStaffById(Long id);
+
+    public Staff getById(Long id);
 
     public StaffResponseDTO getStaffByUsername(String username);
 }

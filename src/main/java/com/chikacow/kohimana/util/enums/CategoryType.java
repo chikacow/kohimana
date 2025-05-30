@@ -17,6 +17,9 @@ public enum CategoryType {
         this.value = value;
     }
 
+    public static Object fromString(StaffTeam staffTeam, Object setStaffTeam) {
+    }
+
     public String getValue() {
         return value;
     }
