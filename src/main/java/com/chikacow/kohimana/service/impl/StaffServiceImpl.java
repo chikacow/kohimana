@@ -79,7 +79,7 @@ public class StaffServiceImpl implements StaffService {
     @Override
     public StaffResponseDTO getStaffById(Long id) {
         Staff staff = staffRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("staff not fount"));
+                .orElseThrow(() -> new ResourceNotFoundException("staff not found"));
 
         return StaffMapper.fromEntityToResponseDTO(staff);
     }
