@@ -21,4 +21,6 @@ public interface ProductService {
     public ProductResponseDTO createTonsProduct(List<ProductRequestDTO> productRequestDTOlist);
 
     public PageResponse<?> getAllProducts(int pageNo, int pageSize, String sortBy);
+
+    public List<Product> getProductListFromCodeList(List<String> codeList);
 }

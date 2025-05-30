@@ -3,21 +3,20 @@ package com.chikacow.kohimana.service.impl;
 import com.chikacow.kohimana.dto.request.CategoryRequestDTO;
 import com.chikacow.kohimana.dto.response.CategoryResponseDTO;
 import com.chikacow.kohimana.exception.ResourceNotFoundException;
+import com.chikacow.kohimana.mapper.CategoryMapper;
 import com.chikacow.kohimana.model.Category;
 import com.chikacow.kohimana.model.Product;
 import com.chikacow.kohimana.repository.CategoryRepository;
-import com.chikacow.kohimana.repository.ProductRepository;
 import com.chikacow.kohimana.service.CategoryService;
-import com.chikacow.kohimana.util.enums.CategoryType;
-import com.chikacow.kohimana.util.helper.SmoothData;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.ParameterMode;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.StoredProcedureQuery;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -25,7 +24,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
-    private final ProductRepository productRepository;
 
     @PersistenceContext
     private final EntityManager entityManager;
@@ -41,91 +39,38 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Transactional
     public CategoryResponseDTO createCategory(CategoryRequestDTO requestDTO) {
-        String smooth_name = SmoothData.smooth(requestDTO.getName());
-        List<Product> products = new ArrayList<>();
-        if (requestDTO.getProductCodes() != null) {
-            List<String> productCodes = requestDTO.getProductCodes();
+        //List<Product> products = getProductListFromCodeList(requestDTO.getProductCodes());
+        List<Product> products = getProductsByCodes(requestDTO.getProductCodes());
+        Category category = CategoryMapper.fromRequestDTOToEntity(requestDTO, products);
+        updateCategoryInProductList(category);
 
-            for (String productCode : productCodes) {
-                Product product = productRepository.findByCode(productCode).orElseThrow(() -> new ResourceNotFoundException("product not found"));
-                products.add(product);
-            }
-        }
+        ///vì là tham chiếu nên khi id trong category đc cập nhật là giá trị cate id trong product id cx đc cập nhật theo luôn
+        /// nhớ rằng đây là tham chiếu, pass by reference chứ ko phải pass by value nhé
+        entityManager.persist(category);
+        entityManager.flush();
 
-
-        Category category = Category.builder()
-                .code(requestDTO.getCategoryID())
-                .name(smooth_name)
-                .type(CategoryType.fromString(requestDTO.getType()))
-                .productList(products)
-                .isActive(true)
-                .build();
-
-        Category newCate = categoryRepository.save(category);
-
-        CategoryResponseDTO res = CategoryResponseDTO.builder()
-                .categoryID(newCate.getCode())
-                .name(newCate.getName())
-                .type(newCate.getType())
-                //.productCodes()
-                .build();
-
-        return res;
+        return CategoryMapper.fromEntityToResponseDTO(category);
     }
 
     @Override
     public CategoryResponseDTO getCategoryInfo(Long id) {
-
-        Category retrived = getCategoryById(id);
-
-        CategoryResponseDTO res = CategoryResponseDTO.builder()
-                .categoryID(retrived.getCode())
-                .name(retrived.getName())
-                .type(retrived.getType())
-                .productCodes(productList2Code(retrived.getProductList()))
-                .build();
-
-        return res;
+        return CategoryMapper.fromEntityToResponseDTO(getCategoryById(id));
     }
 
     /**
      *Must satisfy that all the update data, including existed product code, to perform updating
      */
     @Override
+    @Transactional
     public CategoryResponseDTO updateCategoryInfo(Long id, CategoryRequestDTO requestDTO) {
-
         Category retrived = getCategoryById(id);
 
-        String name_smooth = SmoothData.smooth(requestDTO.getName());
-        if (requestDTO.getCategoryID() != null) {
-            retrived.setCode(requestDTO.getCategoryID());
-        }
-        if (requestDTO.getName() != null) {
-            retrived.setName(name_smooth);
-        }
-        if (requestDTO.getType() != null) {
-            retrived.setType(CategoryType.fromString(requestDTO.getType()));
-        }
-
-//        if (requestDTO.getProductCodes() != null) {
-//            log.info("must include all product code before to avoid data lost");
-//            retrived.getProductList().remove(0);
-//            //phai save thi orphan ms hoat dong, chung to hibernate khong the anh xa live
-//            //categoryRepository.save(retrived);
-//            retrived.setProductList(productCode2List(requestDTO.getProductCodes()));
-//        }
-
+        CategoryMapper.updateUserFromRequestDTO(retrived, requestDTO);
         Category saved = categoryRepository.save(retrived);
 
-        CategoryResponseDTO res = CategoryResponseDTO.builder()
-                .categoryID(saved.getCode())
-                .name(saved.getName())
-                .type(saved.getType())
-                .productCodes(productList2Code(retrived.getProductList()))
-                .build();
-
-        return res;
+        return CategoryMapper.fromEntityToResponseDTO(saved);
     }
 
     @Override
@@ -143,22 +88,28 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
 
-    private List<String> productList2Code(List<Product> products) {
-        List<String> productCodes = new ArrayList<>();
 
-        for (Product product : products) {
-            productCodes.add(product.getCode());
+
+    private void updateCategoryInProductList(Category category) {
+        List<Product> products = category.getProductList();
+        if (products != null) {
+            products.forEach(p -> p.setCategory(category));
         }
-        return productCodes;
+
     }
 
-    private List<Product> productCode2List(List<String> codes) {
-        List<Product> productList = new ArrayList<>();
+    @Override
+    public List<Product> getProductsByCodes(List<String> codeList) {
+        String codesCsv = String.join(",", codeList);
 
-        for (String code : codes) {
-            Product product = productRepository.findByCode(code).orElseThrow(() -> new ResourceNotFoundException("product not found"));
-            productList.add(product);
-        }
-        return productList;
+        StoredProcedureQuery query = entityManager
+                .createStoredProcedureQuery("get_products_by_codes", Product.class);
+
+        query.registerStoredProcedureParameter("codes", String.class, ParameterMode.IN);
+        query.setParameter("codes", codesCsv);
+
+        return query.getResultList();
     }
 }
+
+

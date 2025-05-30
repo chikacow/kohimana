@@ -3,11 +3,9 @@ package com.chikacow.kohimana.service.impl;
 import com.chikacow.kohimana.dto.request.ProductRequestDTO;
 import com.chikacow.kohimana.dto.response.PageResponse;
 import com.chikacow.kohimana.dto.response.ProductResponseDTO;
-import com.chikacow.kohimana.dto.response.UserResponseDTO;
 import com.chikacow.kohimana.exception.ResourceNotFoundException;
 import com.chikacow.kohimana.model.Category;
 import com.chikacow.kohimana.model.Product;
-import com.chikacow.kohimana.model.User;
 import com.chikacow.kohimana.repository.ProductRepository;
 import com.chikacow.kohimana.service.CategoryService;
 import com.chikacow.kohimana.service.FileService;
@@ -23,8 +21,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -33,7 +29,7 @@ import java.util.regex.Pattern;
 import static com.chikacow.kohimana.util.AppConst.SORT_BY;
 
 @Service
-@Slf4j
+@Slf4j(topic = "PRODUCT-SERVICE")
 @RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
@@ -254,6 +250,21 @@ public class ProductServiceImpl implements ProductService {
     }
 
 
+    @Override
+    public List<Product> getProductListFromCodeList(List<String> codeList) {
+        List<Product> products = new ArrayList<>();
+        if (codeList != null) {
+
+            for (String productCode : codeList) {
+                Product product = productRepository.findByCode(productCode).orElseThrow(() -> new ResourceNotFoundException("product not found"));
+                products.add(product);
+            }
+        }
+
+        return products;
+    }
+
+
 
 
     /**
@@ -275,4 +286,17 @@ public class ProductServiceImpl implements ProductService {
 
         return rt;
     }
+
+
+    private List<Product> productCode2List(List<String> codes) {
+        List<Product> productList = new ArrayList<>();
+
+        for (String code : codes) {
+            Product product = productRepository.findByCode(code).orElseThrow(() -> new ResourceNotFoundException("product not found"));
+            productList.add(product);
+        }
+        return productList;
+    }
+
+
 }
