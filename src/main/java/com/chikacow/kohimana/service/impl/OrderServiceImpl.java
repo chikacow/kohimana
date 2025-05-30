@@ -4,6 +4,7 @@ import com.chikacow.kohimana.dto.request.OrderItemRequestDTO;
 import com.chikacow.kohimana.dto.request.OrderRequestDTO;
 import com.chikacow.kohimana.dto.response.OrderResponseDTO;
 import com.chikacow.kohimana.exception.ResourceNotFoundException;
+import com.chikacow.kohimana.mapper.OrderMapper;
 import com.chikacow.kohimana.model.*;
 import com.chikacow.kohimana.model.redis.RedisOrder;
 import com.chikacow.kohimana.repository.OrderItemRepository;
@@ -17,6 +18,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.aspectj.weaver.ast.Or;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -38,100 +40,49 @@ public class OrderServiceImpl implements OrderService {
     @PersistenceContext
     private final EntityManager entityManager;
 
+    @Override
     @Transactional
     public OrderResponseDTO createOrder(OrderRequestDTO request) {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        log.info(username);
-        User activeUser = userService.getByUsername(username);
-
-        Seat seat = searService.getSeatById(request.getSeatID());
-
-        List<OrderItemRequestDTO> orderItemRequestDTOList = request.getItems();
-
-        Set<OrderItem> orderItems = orderItemService.createOrderItemsFromDTO(orderItemRequestDTOList);
+        Set<OrderItem> orderItems = orderItemService.createOrderItemsFromDTO(request.getItems());
 
         Order order = Order.builder()
-                .seat(seat)
-                .user(activeUser)
+                .seat(searService.getSeatById(request.getSeatID()))
+                .user(getCustomer())
                 .status(OrderStatus.PENDING)
                 .build();
 
-        for (OrderItem items : orderItems) {
-            items.setOrder(order);
-        }
-        order.setItems(orderItems);
-        order.setTotalAmount(order.calculateTotal());
+        syncOrderAndOrderItem(order, orderItems);
 
+        orderRepository.save(order);
 
-        Order savedOrder = orderRepository.save(order);
+        saveToRedis(order);
 
-        ///redis
-        String ord_id_redis = redisOrderService.save(savedOrder.getId().toString());
-        log.info("Order save at redis: {}", ord_id_redis);
-
-
-        OrderResponseDTO res = OrderResponseDTO.builder()
-                .id(savedOrder.getId())
-                .seatID(savedOrder.getSeat().getId())
-                .userID(savedOrder.getUser().getId())
-                .items(orderItemService.convertToDTOs(savedOrder.getItems()))
-                .totalAmount(savedOrder.getTotalAmount())
-                .createdAt(savedOrder.getCreatedAt())
-                .status(OrderStatus.PENDING)
-                .build();
-
-        return res;
+        return OrderMapper.fromEntityToResponseDTO_CREATE(order);
     }
 
+    @Override
+    @Transactional
     public OrderResponseDTO updateOrderStatus(Long orderId, OrderStatus status) {
         Order order = getOrderById(orderId);
         order.setStatus(status);
-        Order savedOrder = orderRepository.save(order);
 
-        OrderResponseDTO res = OrderResponseDTO.builder()
-                .id(savedOrder.getId())
-                .status(savedOrder.getStatus())
-                .userID(savedOrder.getUser().getId())
-                .build();
-        return res;
+        orderRepository.save(order);
+
+        return OrderMapper.fromEntityToResponseDTO_UPDATE_STATUS(order);
     }
 
     public List<OrderResponseDTO> getOrdersBySeat(Long seatId) {
-        List<Order> list = orderRepository.findBySeatId(seatId);
+        List<Order> orderList = orderRepository.findBySeatId(seatId);
 
-        List<OrderResponseDTO> res = new ArrayList<>();
+        return orderList.stream().map(OrderMapper::fromEntityToResponseDTO).toList();
 
-        for (Order order : list) {
-            OrderResponseDTO r = OrderResponseDTO.builder()
-                    .id(order.getId())
-                    .status(order.getStatus())
-                    .createdAt(order.getCreatedAt())
-                    .userID(order.getUser().getId())
-                    .build();
-            res.add(r);
-        }
 
-        return res;
     }
 
     public List<OrderResponseDTO> getOrdersByStatus(List<OrderStatus> status) {
+        List<Order> orderList = orderRepository.findByStatusIn(status);
 
-        List<Order> list = orderRepository.findByStatusIn(status);
-
-        List<OrderResponseDTO> res = new ArrayList<>();
-        for (Order order : list) {
-            OrderResponseDTO r = OrderResponseDTO.builder()
-                    .id(order.getId())
-                    .status(order.getStatus())
-                    .createdAt(order.getCreatedAt())
-                    .userID(order.getUser().getId())
-                    .build();
-
-            res.add(r);
-        }
-
-        return res;
-
+        return orderList.stream().map(OrderMapper::fromEntityToResponseDTO).toList();
     }
 
     @Override
@@ -157,10 +108,7 @@ public class OrderServiceImpl implements OrderService {
 //        }
 //        sb.replace(sb.length() - 1, sb.length(), "");
 
-        List<String> id_list = new ArrayList<>();
-        for (RedisOrder redisOrder : redisOrders) {
-            id_list.add(redisOrder.getId());
-        }
+        List<String> id_list = redisOrders.stream().map(RedisOrder::getId).toList();
 
         List<Order> orderList = entityManager
                 .createQuery("SELECT o FROM Order o WHERE o.id IN :ids", Order.class)
@@ -169,18 +117,7 @@ public class OrderServiceImpl implements OrderService {
 
         orderList.sort(Comparator.comparing(Order::getCreatedAt));
 
-        List<OrderResponseDTO> res = new ArrayList<>();
-        for (Order order : orderList) {
-            res.add(OrderResponseDTO.builder()
-                    .id(order.getId())
-                    .status(order.getStatus())
-                    .createdAt(order.getCreatedAt())
-                    .userID(order.getUser().getId())
-                    .build());
-        }
-
-
-        return res;
+        return orderList.stream().map(OrderMapper::fromEntityToResponseDTO).toList();
     }
 
     @Override
@@ -202,5 +139,27 @@ public class OrderServiceImpl implements OrderService {
         }
         return false;
 
+    }
+
+    private User getCustomer() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        log.info(username);
+        return userService.getByUsername(username);
+    }
+
+    private void syncOrderAndOrderItem(Order order, Set<OrderItem> orderItems) {
+        orderItems.forEach(i -> i.setOrder(order));
+        order.setItems(orderItems);
+        order.setTotalAmount(order.calculateTotal());
+    }
+
+    private void saveToRedis(Order order) {
+        //redis
+        try {
+            String ord_id_redis = redisOrderService.save(order.getId().toString());
+            log.info("Order save at redis: {}", ord_id_redis);
+        } catch (Exception e) {
+            log.info("Not connected to Redis");
+        }
     }
 }

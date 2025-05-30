@@ -20,5 +20,5 @@ public interface OrderItemService {
 
     public Set<OrderItem> createOrderItemsFromDTO(List<OrderItemRequestDTO> requests);
 
-    public List<OrderItemResponseDTO> convertToDTOs(Set<OrderItem> items);
+
 }

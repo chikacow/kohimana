@@ -9,4 +9,16 @@ END //
 DELIMITER ;
 
 
+DELIMITER //
+
+CREATE PROCEDURE get_products_by_ids(IN ids TEXT)
+BEGIN
+SELECT * FROM product
+WHERE FIND_IN_SET(id, ids) > 0;
+END //
+
+DELIMITER ;
+
+
+
 

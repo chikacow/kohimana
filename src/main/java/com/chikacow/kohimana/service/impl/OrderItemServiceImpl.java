@@ -2,6 +2,7 @@ package com.chikacow.kohimana.service.impl;
 
 import com.chikacow.kohimana.dto.request.OrderItemRequestDTO;
 import com.chikacow.kohimana.dto.response.OrderItemResponseDTO;
+import com.chikacow.kohimana.mapper.OrderItemMapper;
 import com.chikacow.kohimana.model.OrderItem;
 import com.chikacow.kohimana.model.Product;
 import com.chikacow.kohimana.repository.OrderItemRepository;
@@ -17,10 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @Transactional
@@ -60,36 +58,25 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Transactional
     @Override
     public Set<OrderItem> createOrderItemsFromDTO(List<OrderItemRequestDTO> requests) {
-        Set<OrderItem> orderItemSet = new HashSet<>();
-        for (OrderItemRequestDTO req : requests) {
-            Product product = productService.getProductById(req.getProductID());
-            OrderItem orderItem = OrderItem.builder()
-                    .note(req.getNote())
-                    .price(product.getPrice())
-                    .quantity(req.getQuantity())
-                    .product(product)
-                    .build();
-            orderItemSet.add(orderItem);
-        }
+        List<Long> productIds = getProductIdsFromOrderItemList(requests);
+        List<Product> productList = productService.getProductsByIds(productIds);
 
+        Set<OrderItem> orderItemSet = new HashSet<>();
+        for (int i = 0; i < requests.size(); i++) {
+            Product product = productList.get(i);
+            orderItemSet.add(OrderItemMapper.fromRequestDTOToEntity(requests.get(i), product));
+        }
 
         return orderItemSet;
     }
 
-    @Override
-    public List<OrderItemResponseDTO> convertToDTOs(Set<OrderItem> items) {
-        List<OrderItemResponseDTO> res = new ArrayList<>();
-        for (OrderItem it : items) {
-            OrderItemResponseDTO reis = OrderItemResponseDTO.builder()
-                    .note(it.getNote())
-                    .price(it.getPrice())
-                    .quantity(it.getQuantity())
-                    .id(it.getId())
-                    .productID(it.getProduct().getId())
-                    .build();
 
-            res.add(reis);
+
+    private List<Long> getProductIdsFromOrderItemList(List<OrderItemRequestDTO> requests) {
+        List<Long> productIds = new LinkedList<>();
+        for (OrderItemRequestDTO req : requests) {
+            productIds.add(req.getProductID());
         }
-        return res;
+        return productIds;
     }
 }

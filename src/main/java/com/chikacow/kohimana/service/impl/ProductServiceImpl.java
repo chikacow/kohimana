@@ -12,7 +12,9 @@ import com.chikacow.kohimana.service.CategoryService;
 import com.chikacow.kohimana.service.FileService;
 import com.chikacow.kohimana.service.ProductService;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.ParameterMode;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.StoredProcedureQuery;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -204,6 +206,32 @@ public class ProductServiceImpl implements ProductService {
         }
 
         return category;
+    }
+
+    @Override
+    public List<Product> getProductsByCodes(List<String> codeList) {
+        String codesCsv = String.join(",", codeList);
+
+        StoredProcedureQuery query = entityManager
+                .createStoredProcedureQuery("get_products_by_codes", Product.class);
+
+        query.registerStoredProcedureParameter("codes", String.class, ParameterMode.IN);
+        query.setParameter("codes", codesCsv);
+
+        return query.getResultList();
+    }
+
+    @Override
+    public List<Product> getProductsByIds(List<Long> ids) {
+        String idsCsv = String.join(",", ids.stream().map(String::valueOf).toList());
+
+        StoredProcedureQuery query = entityManager
+                .createStoredProcedureQuery("get_products_by_ids", Product.class);
+
+        query.registerStoredProcedureParameter("ids", String.class, ParameterMode.IN);
+        query.setParameter("ids", idsCsv);
+
+        return query.getResultList();
     }
 
 

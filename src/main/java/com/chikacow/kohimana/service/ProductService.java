@@ -23,4 +23,8 @@ public interface ProductService {
     public PageResponse<?> getAllProducts(int pageNo, int pageSize, String sortBy);
 
     public List<Product> getProductListFromCodeList(List<String> codeList);
+
+    public List<Product> getProductsByCodes(List<String> codeList);
+
+    public List<Product> getProductsByIds(List<Long> ids);
 }
