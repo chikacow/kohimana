@@ -18,7 +18,7 @@ public interface ProductService {
 
     public Product getProductById(Long id);
 
-    public ProductResponseDTO createTonsProduct(List<ProductRequestDTO> productRequestDTOlist);
+    public int createTonsProduct(List<ProductRequestDTO> productRequestDTOlist);
 
     public PageResponse<?> getAllProducts(int pageNo, int pageSize, String sortBy);
 

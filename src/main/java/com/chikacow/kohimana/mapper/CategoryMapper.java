@@ -35,7 +35,7 @@ public class CategoryMapper implements DTOMapper<Category> {
 
     }
 
-    public static void updateUserFromRequestDTO(Category category, CategoryRequestDTO requestDTO) {
+    public static void updateEntityFromRequestDTO(Category category, CategoryRequestDTO requestDTO) {
         normalizeRequestDTO(requestDTO);
 
         applyIfNotNull(requestDTO.getCode(), category::setCode);

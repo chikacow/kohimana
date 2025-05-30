@@ -67,7 +67,7 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryResponseDTO updateCategoryInfo(Long id, CategoryRequestDTO requestDTO) {
         Category retrived = getCategoryById(id);
 
-        CategoryMapper.updateUserFromRequestDTO(retrived, requestDTO);
+        CategoryMapper.updateEntityFromRequestDTO(retrived, requestDTO);
         Category saved = categoryRepository.save(retrived);
 
         return CategoryMapper.fromEntityToResponseDTO(saved);

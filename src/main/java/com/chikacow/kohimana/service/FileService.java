@@ -46,4 +46,24 @@ public class FileService {
         fileRepository.deleteAll();
         return numFiles;
     }
+
+    /**
+     * handle the file upload
+     * @param localUrl
+     * @return
+     */
+    public String resolveImageUrl(String localUrl) {
+        String rt = "not found";
+        try {
+            if (localUrl != null) {
+                return getCloudUrl(localUrl);
+            } else {
+                return "no image";
+            }
+        } catch (Exception e) {
+            log.info("Failed to resolve image url");
+        }
+
+        return rt;
+    }
 }

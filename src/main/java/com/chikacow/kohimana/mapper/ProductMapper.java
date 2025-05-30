@@ -1,7 +1,9 @@
 package com.chikacow.kohimana.mapper;
 
 import com.chikacow.kohimana.dto.request.CategoryRequestDTO;
+import com.chikacow.kohimana.dto.request.ProductRequestDTO;
 import com.chikacow.kohimana.dto.response.CategoryResponseDTO;
+import com.chikacow.kohimana.dto.response.ProductResponseDTO;
 import com.chikacow.kohimana.model.Category;
 import com.chikacow.kohimana.model.Product;
 import com.chikacow.kohimana.util.enums.CategoryType;
@@ -11,23 +13,45 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public class ProductMapper implements DTOMapper<Product> {
-    public static Category fromRequestDTOToEntity(CategoryRequestDTO requestDTO, List<Product> products) {
+    public static Product fromRequestDTOToEntity(ProductRequestDTO requestDTO, String imageUrl, Category category) {
+        return Product.builder()
+                .code(requestDTO.getCode())
+                .name(requestDTO.getName())
+                .description(requestDTO.getDescription())
+                .price(requestDTO.getPrice())
+                .imageUrl(imageUrl)
+                .category(category)
+                .build();
+
 
 
     }
 
 
-    public static CategoryResponseDTO fromEntityToResponseDTO(Category category) {
+    public static ProductResponseDTO fromEntityToResponseDTO(Product product) {
+        return ProductResponseDTO.builder()
+                .code(product.getCode())
+                .name(product.getName())
+                .description(product.getDescription())
+                .price(product.getPrice())
+                .imageUrl(product.getImageUrl())
+                .categoryID(product.getCategory() != null ? product.getCategory().getCode() : "none")
+                .build();
 
 
     }
 
-    public static void updateUserFromRequestDTO(Category category, CategoryRequestDTO requestDTO) {
+    public static void updateEntityFromRequestDTO(Product product, ProductRequestDTO requestDTO, Category category) {
 
 
-        applyIfNotNull(requestDTO.getCode(), category::setCode);
-        applyIfNotNull(requestDTO.getName(), category::setName);
-        applyIfNotNull(CategoryType.fromString(requestDTO.getType()), category::setType);
+
+        applyIfNotNull(requestDTO.getCode(), product::setCode);
+        applyIfNotNull(requestDTO.getName(), product::setName);
+        applyIfNotNull(requestDTO.getDescription(), product::setDescription);
+        applyIfNotNull(requestDTO.getPrice(), product::setPrice);
+        applyIfNotNull(requestDTO.getLocalImageUrl(), product::setImageUrl);
+        applyIfNotNull(category, product::setCategory);
+
 
     }
 

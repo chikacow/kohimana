@@ -4,6 +4,7 @@ import com.chikacow.kohimana.dto.request.ProductRequestDTO;
 import com.chikacow.kohimana.dto.response.PageResponse;
 import com.chikacow.kohimana.dto.response.ProductResponseDTO;
 import com.chikacow.kohimana.exception.ResourceNotFoundException;
+import com.chikacow.kohimana.mapper.ProductMapper;
 import com.chikacow.kohimana.model.Category;
 import com.chikacow.kohimana.model.Product;
 import com.chikacow.kohimana.repository.ProductRepository;
@@ -49,40 +50,16 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional
     public ProductResponseDTO createProduct(ProductRequestDTO productRequestDTO) {
-
-        Category category = new Category();
-
-        if (productRequestDTO.getCateCode() != null) {
-            category = categoryService.getCategoryByCode(productRequestDTO.getCateCode());
-        }
+        Category product_s_category = getCategoryFromProductRequestDto(productRequestDTO);
 
         //handle image upload
-        String cloudUrl = resolveImageUrl(productRequestDTO.getLocalImageUrl());
+        String cloudUrl = fileService.resolveImageUrl(productRequestDTO.getLocalImageUrl());
 
-        Product newProduct = Product.builder()
-                .code(productRequestDTO.getCode())
-                .name(productRequestDTO.getName())
-                .description(productRequestDTO.getDescription())
-                .price(productRequestDTO.getPrice())
-                .imageUrl(cloudUrl)
-                .category(category)
-                .build();
+        Product newProduct = ProductMapper.fromRequestDTOToEntity(productRequestDTO, cloudUrl, product_s_category);
 
-        //productRepository.save(newProduct);
-        //với persist thì kết quả ra bình thường, ánh xạ từ db lên vô tư, như trường hợp create seat.
-        //với merge thì y hệt cái update, chắc chắn vấn đề nằm ở đây, nằm ở sự khác biệt giữa merge và persist, giữa create và update
         entityManager.persist(newProduct);
 
-        return ProductResponseDTO.builder()
-                .code(newProduct.getCode())
-                .name(newProduct.getName())
-                .description(newProduct.getDescription())
-                .price(newProduct.getPrice())
-                .imageUrl(newProduct.getImageUrl())
-                .categoryID(newProduct.getCategory().getCode())
-                .build();
-
-
+        return ProductMapper.fromEntityToResponseDTO(newProduct);
     }
 
     /**
@@ -92,17 +69,7 @@ public class ProductServiceImpl implements ProductService {
      */
     @Override
     public ProductResponseDTO getProductInfo(Long id) {
-        Product retrived = getProductById(id);
-
-        ProductResponseDTO res = ProductResponseDTO.builder()
-                .code(retrived.getCode())
-                .name(retrived.getName())
-                .description(retrived.getDescription())
-                .price(retrived.getPrice())
-                .imageUrl(retrived.getImageUrl())
-                .categoryID(retrived.getCategory() != null ? retrived.getCategory().getCode() : "none")
-                .build();
-        return res;
+        return ProductMapper.fromEntityToResponseDTO(getProductById(id));
     }
 
     /**
@@ -116,39 +83,15 @@ public class ProductServiceImpl implements ProductService {
     public ProductResponseDTO updateProductInfo(Long id, ProductRequestDTO productRequestDTO) {
         Product retrived = getProductById(id);
 
-        if (productRequestDTO.getCode() != null) {
-            retrived.setCode(productRequestDTO.getCode());
-        }
-        if (productRequestDTO.getName() != null) {
-            retrived.setName(productRequestDTO.getName());
-        }
-        if (productRequestDTO.getDescription() != null) {
-            retrived.setDescription(productRequestDTO.getDescription());
-        }
-        if (productRequestDTO.getPrice().longValue() != 0) {
-            retrived.setPrice(productRequestDTO.getPrice());
-        }
-        if (productRequestDTO.getLocalImageUrl() != null && !resolveImageUrl(productRequestDTO.getLocalImageUrl()).equals("not found") ) {
-            retrived.setImageUrl(resolveImageUrl(productRequestDTO.getLocalImageUrl()));
-        }
-        if (productRequestDTO.getCateCode() != null) {
-            retrived.setCategory(categoryService.getCategoryByCode(productRequestDTO.getCateCode()));
-        }
+        Category category = categoryService.getCategoryByCode(productRequestDTO.getCateCode());
 
+        ProductMapper.updateEntityFromRequestDTO(retrived, productRequestDTO, category);
         /**
          * bug flush()
          */
         productRepository.save(retrived);
 
-        ProductResponseDTO res = ProductResponseDTO.builder()
-                .code(retrived.getCode())
-                .name(retrived.getName())
-                .description(retrived.getDescription())
-                .price(retrived.getPrice())
-                .imageUrl(retrived.getImageUrl())
-                .categoryID(retrived.getCategory().getCode())
-                .build();
-        return res;
+        return ProductMapper.fromEntityToResponseDTO(retrived);
     }
 
 
@@ -178,41 +121,27 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public ProductResponseDTO createTonsProduct(List<ProductRequestDTO> productRequestDTOlist) {
-
+    public int createTonsProduct(List<ProductRequestDTO> productRequestDTOlist) {
+        List<Product> persistedProducts = new ArrayList<>();
         for(ProductRequestDTO productRequestDTO : productRequestDTOlist) {
-            Category category = new Category();
-            if (productRequestDTO.getCateCode() != null) {
-                category = categoryService.getCategoryByCode(productRequestDTO.getCateCode());
-            }
+            Category product_s_category = getCategoryFromProductRequestDto(productRequestDTO);
 
+            //handle image upload
+            String cloudUrl = fileService.resolveImageUrl(productRequestDTO.getLocalImageUrl());
 
-            String cloudUrl = resolveImageUrl(productRequestDTO.getLocalImageUrl());
+            Product newProduct = ProductMapper.fromRequestDTOToEntity(productRequestDTO, cloudUrl, product_s_category);
 
-
-            Product newProduct = Product.builder()
-                    .code(productRequestDTO.getCode())
-                    .name(productRequestDTO.getName())
-                    .description(productRequestDTO.getDescription())
-                    .price(productRequestDTO.getPrice())
-                    .imageUrl(cloudUrl)
-                    .category(category)
-                    .build();
-
-            Product savedProduct = productRepository.save(newProduct);
-
+            entityManager.persist(newProduct);
+            persistedProducts.add(newProduct);
 
         }
-
-        return null;
+        return persistedProducts.size();
     }
 
     @Override
     public PageResponse<?> getAllProducts(int pageNo, int pageSize, String sortBy) {
-        int realPageNo = 0;
-        if (pageNo > 0) {
-            realPageNo = pageNo - 1;
-        }
+        int realPageNo = pageNo > 0 ? pageNo -1 : 0;
+
         List<Sort.Order> sorts = new ArrayList<>();
         if (StringUtils.hasLength(sortBy)) {
             // firstName:asc|desc
@@ -226,20 +155,11 @@ public class ProductServiceImpl implements ProductService {
                 }
             }
         }
-        Pageable pageable = PageRequest.of(realPageNo, pageSize, Sort.by(sorts));
 
+        Pageable pageable = PageRequest.of(realPageNo, pageSize, Sort.by(sorts));
         Page<Product> page = productRepository.findAll(pageable);
 
-        List<ProductResponseDTO> resList = page.stream().map(prod -> ProductResponseDTO.builder()
-                .code(prod.getCode())
-                .name(prod.getName())
-                .description(prod.getDescription())
-                .price(prod.getPrice())
-                .imageUrl(prod.getImageUrl())
-                .categoryID(prod.getCategory() != null ? prod.getCategory().getCode() : "none")
-                .build()).toList();
-
-
+        List<ProductResponseDTO> resList = page.stream().map(ProductMapper::fromEntityToResponseDTO).toList();
 
         return PageResponse.builder()
                 .items(resList)
@@ -266,28 +186,6 @@ public class ProductServiceImpl implements ProductService {
 
 
 
-
-    /**
-     * handle the file upload
-     * @param localUrl
-     * @return
-     */
-    private String resolveImageUrl(String localUrl) {
-        String rt = "not found";
-        try {
-            if (localUrl != null) {
-                return fileService.getCloudUrl(localUrl);
-            } else {
-                return "no image";
-            }
-        } catch (Exception e) {
-            log.info("Failed to resolve image url");
-        }
-
-        return rt;
-    }
-
-
     private List<Product> productCode2List(List<String> codes) {
         List<Product> productList = new ArrayList<>();
 
@@ -296,6 +194,16 @@ public class ProductServiceImpl implements ProductService {
             productList.add(product);
         }
         return productList;
+    }
+
+    private Category getCategoryFromProductRequestDto(ProductRequestDTO requestDTO) {
+        Category category = new Category();
+
+        if (requestDTO.getCateCode() != null) {
+            category = categoryService.getCategoryByCode(requestDTO.getCateCode());
+        }
+
+        return category;
     }
 
 
