@@ -1,12 +1,10 @@
 package com.chikacow.kohimana.config;
 
-import com.chikacow.kohimana.service.FileService;
+import com.chikacow.kohimana.service.impl.FileService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-
-import java.time.LocalDateTime;
 
 @Component
 @Slf4j

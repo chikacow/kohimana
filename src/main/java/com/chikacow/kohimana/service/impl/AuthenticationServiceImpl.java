@@ -7,18 +7,11 @@ import com.chikacow.kohimana.dto.response.TokenResponse;
 import com.chikacow.kohimana.dto.response.UserResponseDTO;
 import com.chikacow.kohimana.exception.HaveNoAccessToResourceException;
 import com.chikacow.kohimana.exception.InvalidDataException;
-import com.chikacow.kohimana.exception.SaveToDBException;
 import com.chikacow.kohimana.mapper.UserMapper;
 import com.chikacow.kohimana.model.Token;
 import com.chikacow.kohimana.model.User;
-import com.chikacow.kohimana.model.rbac.Role;
-import com.chikacow.kohimana.model.rbac.UserHasRole;
 import com.chikacow.kohimana.model.redis.RedisToken;
-import com.chikacow.kohimana.repository.redis.RedisTokenRepository;
-import com.chikacow.kohimana.repository.UserHasRoleRepository;
-import com.chikacow.kohimana.repository.UserRepository;
 import com.chikacow.kohimana.service.*;
-import com.chikacow.kohimana.util.enums.Gender;
 import com.chikacow.kohimana.util.enums.RoleEnum;
 import com.chikacow.kohimana.util.enums.TokenType;
 import com.chikacow.kohimana.util.helper.Separate;
@@ -35,14 +28,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor

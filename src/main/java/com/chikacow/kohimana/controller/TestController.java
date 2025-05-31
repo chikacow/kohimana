@@ -1,7 +1,6 @@
 package com.chikacow.kohimana.controller;
 
-import com.chikacow.kohimana.service.MinioService;
-import lombok.Getter;
+import com.chikacow.kohimana.service.impl.MinioService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

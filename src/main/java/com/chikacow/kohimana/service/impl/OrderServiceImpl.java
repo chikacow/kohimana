@@ -1,25 +1,18 @@
 package com.chikacow.kohimana.service.impl;
 
-import com.chikacow.kohimana.dto.request.OrderItemRequestDTO;
 import com.chikacow.kohimana.dto.request.OrderRequestDTO;
 import com.chikacow.kohimana.dto.response.OrderResponseDTO;
 import com.chikacow.kohimana.exception.ResourceNotFoundException;
 import com.chikacow.kohimana.mapper.OrderMapper;
 import com.chikacow.kohimana.model.*;
 import com.chikacow.kohimana.model.redis.RedisOrder;
-import com.chikacow.kohimana.repository.OrderItemRepository;
 import com.chikacow.kohimana.repository.OrderRepository;
-import com.chikacow.kohimana.repository.ProductRepository;
-import com.chikacow.kohimana.repository.SeatRepository;
 import com.chikacow.kohimana.service.*;
 import com.chikacow.kohimana.util.enums.OrderStatus;
-import com.chikacow.kohimana.util.helper.Converter;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.weaver.ast.Or;
-import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -3,17 +3,11 @@ package com.chikacow.kohimana.config;
 import com.chikacow.kohimana.model.User;
 import com.chikacow.kohimana.model.rbac.Role;
 import com.chikacow.kohimana.model.rbac.UserHasRole;
-import com.chikacow.kohimana.repository.RoleRepository;
-import com.chikacow.kohimana.repository.UserRepository;
-import com.chikacow.kohimana.service.RoleService;
-import com.chikacow.kohimana.service.UserService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;

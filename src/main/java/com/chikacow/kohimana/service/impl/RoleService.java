@@ -1,4 +1,4 @@
-package com.chikacow.kohimana.service;
+package com.chikacow.kohimana.service.impl;
 
 import com.chikacow.kohimana.exception.DatabaseException;
 import com.chikacow.kohimana.model.User;
@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Managing role, may growth more in next versions

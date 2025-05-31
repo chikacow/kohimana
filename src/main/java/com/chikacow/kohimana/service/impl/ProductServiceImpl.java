@@ -9,7 +9,6 @@ import com.chikacow.kohimana.model.Category;
 import com.chikacow.kohimana.model.Product;
 import com.chikacow.kohimana.repository.ProductRepository;
 import com.chikacow.kohimana.service.CategoryService;
-import com.chikacow.kohimana.service.FileService;
 import com.chikacow.kohimana.service.ProductService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.ParameterMode;

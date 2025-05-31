@@ -294,20 +294,12 @@ public class UserServiceImpl implements UserService {
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toSet());
 
-//        for (Map.Entry<String, Integer> entry : mp.entrySet()) {
-//            if (entry.getValue() > 1) {
-//                res.add(entry.getKey());
-//            }
-//        }
-
         return res;
     }
 
     @Override
     public StatisticalResponse.AgeAndGender getAgeAndGenderStats() {
         List<User> allUsers = userRepository.findAll();
-//        AtomicLong i = new AtomicLong();
-//        allUsers.stream().filter(u -> u.getGender() == Gender.MALE).map(u -> LocalDate.now().getYear() - u.getDateOfBirth().getYear()).forEach(i::addAndGet);
 
         StatisticalResponse.AgeAndGender res = StatisticalResponse.AgeAndGender.builder()
                 .womenNumUser(

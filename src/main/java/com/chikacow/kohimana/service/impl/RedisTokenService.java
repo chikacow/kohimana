@@ -1,4 +1,4 @@
-package com.chikacow.kohimana.service;
+package com.chikacow.kohimana.service.impl;
 
 import com.chikacow.kohimana.exception.ResourceNotFoundException;
 import com.chikacow.kohimana.model.Token;
@@ -7,10 +7,6 @@ import com.chikacow.kohimana.repository.redis.RedisTokenRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor

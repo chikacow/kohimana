@@ -1,12 +1,12 @@
-package com.chikacow.kohimana.service;
+package com.chikacow.kohimana.service.impl;
 
 import com.chikacow.kohimana.exception.ResourceNotFoundException;
+import com.chikacow.kohimana.mapper.SeatMapper;
 import com.chikacow.kohimana.model.Seat;
 import com.chikacow.kohimana.repository.SeatRepository;
 
 import com.chikacow.kohimana.util.enums.TableStatus;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.FlushModeType;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,12 +50,7 @@ public class SeatService {
     }
 
     public Seat.SeatResponseDTO getSeatInfo(Long id) {
-        Seat seat = getSeatById(id);
-        return Seat.SeatResponseDTO.builder()
-                .tableNo(seat.getTableNo())
-                .description(seat.getDescription())
-                .status(seat.getStatus())
-                .build();
+        return SeatMapper.fromEntityToResponseDTO(getSeatById(id));
 
     }
     /**
@@ -73,13 +68,7 @@ public class SeatService {
      * @return
      */
     public List<Seat.SeatResponseDTO> getSeatsByStatus(String status) {
-        List<Seat> fetched = seatRepository.findByStatus(status);
-
-        return fetched.stream().map(seat -> Seat.SeatResponseDTO.builder()
-                .tableNo(seat.getTableNo())
-                .description(seat.getDescription())
-                .status(seat.getStatus())
-                .build()).toList();
+        return seatRepository.findByStatus(status).stream().map(SeatMapper::fromEntityToResponseDTO).toList();
     }
 
     /**
@@ -89,30 +78,13 @@ public class SeatService {
      */
     @Transactional
     public Seat.SeatResponseDTO createSeat(Seat.SeatRequestDTO requestDTO) {
-        if (seatRepository.existsByTableNo(requestDTO.getTableNo())) {
-            throw new IllegalArgumentException("Table number already exists");
-        }
+        isSeatAlreadyExists(requestDTO);
 
-        Seat saved = Seat.builder()
-                .tableNo(requestDTO.getTableNo())
-                .description(requestDTO.getDescription())
-                .status(TableStatus.fromString(requestDTO.getStatus()))
-                .build();
+        Seat seat = SeatMapper.fromRequestDTOToEntity(requestDTO);
 
-        //move saved to persistent context, new object -> prepare a persist()
-        entityManager.persist(saved);
+        entityManager.persist(seat);
 
-
-        log.info("create");
-        Seat.SeatResponseDTO res = Seat.SeatResponseDTO.builder()
-                .tableNo(saved.getTableNo())
-                .description(saved.getDescription())
-                .status(saved.getStatus())
-                .build();
-
-        log.info("create completed");
-        //auto flush()
-        return res;
+        return SeatMapper.fromEntityToResponseDTO(seat);
     }
 
     /**
@@ -124,20 +96,10 @@ public class SeatService {
     public List<Seat.SeatResponseDTO> createBatchSeat(List<Seat.SeatRequestDTO> requestDTOS) {
         List<Seat.SeatResponseDTO> batchSeats = new ArrayList<>();
         for (Seat.SeatRequestDTO req : requestDTOS) {
-            if (seatRepository.existsByTableNo(req.getTableNo())) {
-                throw new IllegalArgumentException("Table number already exists");
-            }
-            Seat saved = Seat.builder()
-                    .tableNo(req.getTableNo())
-                    .description(req.getDescription())
-                    .status(TableStatus.fromString(req.getStatus()))
-                    .build();
+            isSeatAlreadyExists(req);
+            Seat saved = SeatMapper.fromRequestDTOToEntity(req);
             seatRepository.save(saved);
-            Seat.SeatResponseDTO res = Seat.SeatResponseDTO.builder()
-                    .tableNo(saved.getTableNo())
-                    .description(saved.getDescription())
-                    .status(saved.getStatus())
-                    .build();
+            Seat.SeatResponseDTO res = SeatMapper.fromEntityToResponseDTO(saved);
             batchSeats.add(res);
         }
         return batchSeats;
@@ -151,33 +113,16 @@ public class SeatService {
      */
     @Transactional
     public Seat.SeatResponseDTO updateSeat(Long id, Seat.SeatRequestDTO requestDTO) {
-        Seat seat = getSeatById(id); //which called
+        Seat seat = getSeatById(id);
 
         if (!seat.getTableNo().equals(requestDTO.getTableNo())) {
-            if (seatRepository.existsByTableNo(requestDTO.getTableNo())) {
-                throw new IllegalArgumentException("Table number already exists");
-            }
+            isSeatAlreadyExists(requestDTO);
             seat.setTableNo(requestDTO.getTableNo());
         }
-
         seat.setDescription(requestDTO.getDescription());
         seat.setStatus(TableStatus.fromString(requestDTO.getStatus()));
 
-        /**
-         * bug, this should be automatically called but i have to do it manually to achieve something obvious
-         */
-        //entityManager.flush();
-
-
-        log.info("update");
-
-        var res = Seat.SeatResponseDTO.builder()
-                .tableNo(seat.getTableNo())
-                .description(seat.getDescription())
-                .status(seat.getStatus())
-                .build();
-        log.info("update complete");
-        return res;
+        return SeatMapper.fromEntityToResponseDTO(seat);
     }
 
     /**
@@ -199,17 +144,18 @@ public class SeatService {
      * @param status
      * @return
      */
+    @Transactional
     public Seat.SeatResponseDTO updateSeatStatus(Long id, String status) {
         Seat seat = getSeatById(id);
         seat.setStatus(TableStatus.fromString(status));
-        Seat saved = seatRepository.save(seat);
+        seatRepository.save(seat);
 
-        Seat.SeatResponseDTO res = Seat.SeatResponseDTO.builder()
-                .tableNo(saved.getTableNo())
-                .description(saved.getDescription())
-                .status(saved.getStatus())
-                .build();
+        return SeatMapper.fromEntityToResponseDTO(seat);
+    }
 
-        return res;
+    private void isSeatAlreadyExists(Seat.SeatRequestDTO requestDTO) {
+        if (seatRepository.existsByTableNo(requestDTO.getTableNo())) {
+            throw new IllegalArgumentException("Table number already exists");
+        }
     }
 }

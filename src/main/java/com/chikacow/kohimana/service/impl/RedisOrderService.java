@@ -1,8 +1,7 @@
-package com.chikacow.kohimana.service;
+package com.chikacow.kohimana.service.impl;
 
 import com.chikacow.kohimana.exception.ResourceNotFoundException;
 import com.chikacow.kohimana.model.redis.RedisOrder;
-import com.chikacow.kohimana.model.redis.RedisToken;
 import com.chikacow.kohimana.repository.redis.RedisOrderRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

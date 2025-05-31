@@ -1,4 +1,4 @@
-package com.chikacow.kohimana.service;
+package com.chikacow.kohimana.service.impl;
 
 import com.chikacow.kohimana.model.Files;
 import com.chikacow.kohimana.repository.FileRepository;

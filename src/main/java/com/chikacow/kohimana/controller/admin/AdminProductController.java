@@ -4,22 +4,16 @@ import com.chikacow.kohimana.dto.request.ProductRequestDTO;
 import com.chikacow.kohimana.dto.response.ProductResponseDTO;
 import com.chikacow.kohimana.dto.response.ResponseData;
 import com.chikacow.kohimana.service.CategoryService;
-import com.chikacow.kohimana.service.FileService;
-import com.chikacow.kohimana.service.MinioService;
 import com.chikacow.kohimana.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @RestController

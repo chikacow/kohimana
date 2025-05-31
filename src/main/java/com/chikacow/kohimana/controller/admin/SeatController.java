@@ -2,8 +2,7 @@ package com.chikacow.kohimana.controller.admin;
 
 import com.chikacow.kohimana.dto.response.ResponseData;
 import com.chikacow.kohimana.model.Seat;
-import com.chikacow.kohimana.service.SeatService;
-import com.chikacow.kohimana.util.enums.TableStatus;
+import com.chikacow.kohimana.service.impl.SeatService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
