@@ -28,8 +28,28 @@ public class RequestTrackingFilter extends OncePerRequestFilter {
             log.info("finish requestTrackingFilter----------------");
             filterChain.doFilter(request, response);
         } else {
-            log.info("denied");
+            while (true) {
+
+                if (AppConstant.getRequestCount() >= 10) {
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException e) {
+                        log.info("I'm tired");
+                    }
+                } else {
+                    System.out.println("request coming...." + AppConstant.increase());
+                    System.out.println(Thread.currentThread().getName());
+                    log.info("finish requestTrackingFilter----------------");
+                    filterChain.doFilter(request, response);
+                    break;
+                }
+
+
+            }
+
         }
+
+
 
 
     }

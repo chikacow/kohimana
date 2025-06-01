@@ -18,7 +18,7 @@ public class AppScheduler {
         log.info("Cleaning file database... found:" + Long.toString(fileService.cleanAllFiles()));
     }
 
-    @Scheduled(fixedRate = 400)
+    @Scheduled(fixedRate = 600)
     public void resetRateLimiting() {
         AppConstant.reset();
     }
