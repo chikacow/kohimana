@@ -21,6 +21,7 @@ public class RequestTrackingFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         log.info("start requestTrackingFilter----------------");
+
         if (AppConstant.getRequestCount() < 10) {
             System.out.println("request coming...." + AppConstant.increase());
             System.out.println(Thread.currentThread().getName());
@@ -29,12 +30,6 @@ public class RequestTrackingFilter extends OncePerRequestFilter {
         } else {
             log.info("denied");
         }
-
-
-
-
-
-
 
 
     }
