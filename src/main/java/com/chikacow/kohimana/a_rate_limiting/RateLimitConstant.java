@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 
 public class RateLimitConstant {
     @Getter
-    private static final Long MAX_TOKEN = 8L;
+    private static final Long MAX_TOKEN = 5L;
 
     @Getter
     private static Long currentToken;

@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -31,6 +32,11 @@ public class RequestTrackingFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         } else {
             log.info("denied");
+
+            response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().write("{\"message\": \"Too many requests. Please try again later\", \"status\": 429}");
         }
 
         log.info("finish requestTrackingFilter----------------");
