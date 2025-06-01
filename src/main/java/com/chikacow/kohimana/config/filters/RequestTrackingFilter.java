@@ -20,12 +20,15 @@ import java.util.concurrent.ThreadPoolExecutor;
 public class RequestTrackingFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+
         log.info("start requestTrackingFilter----------------");
 
         if (AppConstant.getRequestCount() < 10) {
+
             System.out.println("request coming...." + AppConstant.increase());
             System.out.println(Thread.currentThread().getName());
             log.info("finish requestTrackingFilter----------------");
+
             filterChain.doFilter(request, response);
         } else {
             while (true) {
@@ -37,13 +40,13 @@ public class RequestTrackingFilter extends OncePerRequestFilter {
                         log.info("I'm tired");
                     }
                 } else {
+
                     System.out.println("request coming...." + AppConstant.increase());
                     System.out.println(Thread.currentThread().getName());
                     log.info("finish requestTrackingFilter----------------");
                     filterChain.doFilter(request, response);
                     break;
                 }
-
 
             }
 
