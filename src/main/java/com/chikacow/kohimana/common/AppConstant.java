@@ -11,4 +11,8 @@ public class AppConstant {
     public static int getRequestCount() {
         return REQUEST_COUNT;
     }
+
+    public static void reset() {
+        REQUEST_COUNT = 0;
+    }
 }
