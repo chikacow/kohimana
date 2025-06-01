@@ -1,10 +1,9 @@
 package com.chikacow.kohimana.a_rate_limiting;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 
-public class RateLimitConstant {
+public class TokenBucketConstant {
     @Getter
     private static final Long MAX_TOKEN = 5L;
 
@@ -14,7 +13,7 @@ public class RateLimitConstant {
     @Getter
     private static Long currentToken;
 
-    public RateLimitConstant() {
+    public TokenBucketConstant() {
         currentToken = MAX_TOKEN;
     }
     public static void resetToken() {
