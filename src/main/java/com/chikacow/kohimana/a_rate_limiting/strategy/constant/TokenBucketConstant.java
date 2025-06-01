@@ -1,4 +1,4 @@
-package com.chikacow.kohimana.a_rate_limiting;
+package com.chikacow.kohimana.a_rate_limiting.strategy.constant;
 
 import lombok.Getter;
 

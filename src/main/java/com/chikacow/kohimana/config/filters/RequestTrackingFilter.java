@@ -20,7 +20,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 @Component
 @Slf4j(topic = "REQUEST-TRACKING-FILTER")
 public class RequestTrackingFilter extends OncePerRequestFilter {
-    private  final RateLimitingService rateLimitingService;
+    private final RateLimitingService rateLimitingService;
 
     public RequestTrackingFilter(@Qualifier("token-bucket") RateLimitingService rateLimitingService) {
         this.rateLimitingService = rateLimitingService;
@@ -39,14 +39,17 @@ public class RequestTrackingFilter extends OncePerRequestFilter {
         } else {
             log.info("denied");
 
-            response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
-            response.setContentType("application/json");
-            response.setCharacterEncoding("UTF-8");
-            response.getWriter().write("{\"message\": \"Too many requests. Please try again later\", \"status\": 429}");
+            getTooManyRequestResponse(request, response);
         }
 
         log.info("finish requestTrackingFilter----------------");
+    }
 
 
+    public void getTooManyRequestResponse(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write("{\"message\": \"Too many requests. Please try again later\", \"status\": 429}");
     }
 }

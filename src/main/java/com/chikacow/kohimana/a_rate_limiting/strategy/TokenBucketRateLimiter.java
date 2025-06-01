@@ -1,7 +1,7 @@
 package com.chikacow.kohimana.a_rate_limiting.strategy;
 
 import com.chikacow.kohimana.a_rate_limiting.RateLimitingService;
-import com.chikacow.kohimana.a_rate_limiting.TokenBucketConstant;
+import com.chikacow.kohimana.a_rate_limiting.strategy.constant.TokenBucketConstant;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
