@@ -29,6 +29,7 @@ public class RequestTrackingFilter extends OncePerRequestFilter {
         boolean isAllowed = rateLimitingService.isAllowed();
 
         if (isAllowed) {
+            log.info("request tracking is allowed");
             filterChain.doFilter(request, response);
         } else {
             log.info("denied");
