@@ -1,6 +1,7 @@
 package com.chikacow.kohimana.config.filters;
 
 
+import com.chikacow.kohimana.a_rate_limiting.RateLimitingService;
 import com.chikacow.kohimana.common.AppConstant;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -18,41 +19,21 @@ import java.util.concurrent.ThreadPoolExecutor;
 @RequiredArgsConstructor
 @Slf4j(topic = "REQUEST-TRACKING-FILTER")
 public class RequestTrackingFilter extends OncePerRequestFilter {
+    private  final RateLimitingService rateLimitingService;
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         log.info("start requestTrackingFilter----------------");
 
-        if (AppConstant.getRequestCount() < 10) {
+        boolean isAllowed = rateLimitingService.isAllowed();
 
-            System.out.println("request coming...." + AppConstant.increase());
-            System.out.println(Thread.currentThread().getName());
-            log.info("finish requestTrackingFilter----------------");
-
+        if (isAllowed) {
             filterChain.doFilter(request, response);
         } else {
-            while (true) {
-
-                if (AppConstant.getRequestCount() >= 10) {
-                    try {
-                        Thread.sleep(500);
-                    } catch (InterruptedException e) {
-                        log.info("I'm tired");
-                    }
-                } else {
-
-                    System.out.println("request coming...." + AppConstant.increase());
-                    System.out.println(Thread.currentThread().getName());
-                    log.info("finish requestTrackingFilter----------------");
-                    filterChain.doFilter(request, response);
-                    break;
-                }
-
-            }
-
+            log.info("denied");
         }
 
-
+        log.info("finish requestTrackingFilter----------------");
 
 
     }
