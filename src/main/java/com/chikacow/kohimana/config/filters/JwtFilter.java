@@ -1,6 +1,5 @@
-package com.chikacow.kohimana.config;
+package com.chikacow.kohimana.config.filters;
 
-import com.chikacow.kohimana.exception.ExpiredTokenException;
 import com.chikacow.kohimana.service.JwtService;
 import com.chikacow.kohimana.service.UserService;
 import com.chikacow.kohimana.util.enums.TokenType;
@@ -22,7 +21,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.security.SignatureException;
 
 //hung cac request vao ung dung, xu ly r ms chuyen sang cac api
 @Component

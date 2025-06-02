@@ -1,12 +1,13 @@
 package com.chikacow.kohimana.config;
 
+import com.chikacow.kohimana.common.AppConstant;
 import com.chikacow.kohimana.service.impl.FileService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-@Component
+//@Component
 @Slf4j
 @RequiredArgsConstructor
 public class AppScheduler {
@@ -15,6 +16,11 @@ public class AppScheduler {
     @Scheduled(fixedRate = 1000 * 60 * 60)
     public void cleanFileDatabase() {
         log.info("Cleaning file database... found:" + Long.toString(fileService.cleanAllFiles()));
+    }
+
+    @Scheduled(fixedRate = 600)
+    public void resetRateLimiting() {
+        AppConstant.reset();
     }
 
     /**
