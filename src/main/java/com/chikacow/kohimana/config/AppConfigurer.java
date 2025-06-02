@@ -28,7 +28,7 @@ public class AppConfigurer {
     private final UserService userService;
     private final JwtFilter jwtFilter;
 
-    public static String[] WHITE_LIST = {"/api/v1/auth/login", "/api/v1/auth/sign-in", "/api/v1/auth/forgot-password", "/api/v1/auth/**"};
+    public static String[] WHITE_LIST = {"/api/v1/auth/login", "/api/v1/auth/sign-in", "/api/v1/auth/forgot-password", "/api/v1/auth/**", "/api/v1/health"};
 
 
     @Bean
